@@ -1,0 +1,5 @@
+# Eén vraag per regel. Regels met # en lege regels worden genegeerd.
+Is dit uw eerste bezoek aan ons?
+Wat is de reden van uw bezoek vandaag?
+Heeft u alles gevonden wat u zocht?
+Heeft u nog suggesties of opmerkingen voor ons?

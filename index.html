@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Informatiezuil Interview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: #0f172a; color: #f8fafc;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem; text-align: center; user-select: none;
+    }
+    .kiosk-card {
+      background: #1e293b; border-radius: 24px; padding: 3rem;
+      max-width: 800px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    .status-orb {
+      width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 1.5rem;
+      background: #475569; transition: all 0.3s ease;
+    }
+    .status-orb.speaking { background: #3b82f6; box-shadow: 0 0 35px #3b82f6; animation: pulse 1.2s infinite; }
+    .status-orb.listening { background: #10b981; box-shadow: 0 0 35px #10b981; animation: pulse 1s infinite; }
+    .status-orb.thinking { background: #f59e0b; box-shadow: 0 0 35px #f59e0b; animation: pulse 0.8s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+    .status-label { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-bottom: 1rem; }
+    .question-text { font-size: 1.8rem; font-weight: 600; line-height: 1.4; min-height: 100px; margin-bottom: 1.5rem; }
+    .transcript-box {
+      font-size: 1.3rem; color: #38bdf8; min-height: 60px; margin-bottom: 1.5rem;
+      font-style: italic; background: #0f172a; padding: 1rem; border-radius: 12px;
+      border: 1px solid #1e293b;
+    }
+    .btn {
+      background: #2563eb; color: white; border: none; padding: 1.1rem 2.4rem;
+      font-size: 1.3rem; font-weight: 600; border-radius: 999px; cursor: pointer;
+      transition: background 0.2s, transform 0.1s; margin: 0.5rem;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.secondary { background: #475569; }
+    .btn.listen-btn { background: #059669; }
+    .btn.listen-btn.active { background: #dc2626; }
+
+    .input-row {
+      display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.2rem;
+    }
+    .text-input {
+      background: #0f172a; border: 1px solid #475569; color: white;
+      padding: 0.8rem 1.2rem; border-radius: 999px; font-size: 1.1rem; width: 65%;
+    }
+    .send-btn {
+      background: #3b82f6; color: white; border: none; padding: 0.8rem 1.5rem;
+      border-radius: 999px; font-size: 1.1rem; font-weight: 600; cursor: pointer;
+    }
+
+    .analysis-box {
+      margin-top: 2rem; text-align: left; background: #0f172a; padding: 1.5rem;
+      border-radius: 12px; border: 1px solid #334155; display: none;
+    }
+    .analysis-box h3 { color: #38bdf8; margin-bottom: 0.8rem; }
+    .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; font-size: 1.05rem; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; background: #334155; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="kiosk-card">
+    <div id="orb" class="status-orb"></div>
+    <div id="statusLabel" class="status-label">Klaar voor start</div>
+    
+    <div id="questionText" class="question-text">
+      Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.
+    </div>
+
+    <div id="transcriptBox" class="transcript-box" style="display: none;">
+      Uw antwoord verschijnt hier...
+    </div>
+
+    <div id="controls">
+      <button id="startBtn" class="btn" onclick="startInterview()">Start Gesprek</button>
+      
+      <div id="answerControls" style="display: none;">
+        <button id="micBtn" class="btn listen-btn" onclick="toggleListening()">🎤 Spreek antwoord in</button>
+        
+        <div class="input-row">
+          <input type="text" id="manualInput" class="text-input" placeholder="Of typ hier uw antwoord en druk op Enter..." onkeydown="if(event.key==='Enter') verstuurHandmatig()">
+          <button class="send-btn" onclick="verstuurHandmatig()">Verstuur</button>
+        </div>
+      </div>
+
+      <button id="resetBtn" class="btn secondary" style="display: none;" onclick="resetKiosk()">Nieuwe Bezoeker</button>
+    </div>
+
+    <div id="analysisBox" class="analysis-box">
+      <h3>Samenvatting van uw antwoorden</h3>
+      <div id="analysisContent"></div>
+    </div>
+  </div>
+
+  <script>
+    let gesprek = [];
+    let vragen = [];
+    let vraagIndex = 0;
+    let wachtOpAntwoord = false; // True zolang we een gesproken antwoord verwachten
+    let sessieId = 0; // Verandert bij reset, zodat oude async acties stoppen
+    const VOORKEURSSTEMMEN = ['Colette', 'Google Nederlands']; // Daarna de eerste Nederlandse stem
+    const TERUG_NA_MS = 10000; // Tijd dat de samenvatting zichtbaar blijft
+    const INTRO_TEKSTEN = [
+      'Hallo, wat leuk dat je ons museum hebt bezocht! Zou je misschien een paar vragen over ons museum willen beantwoorden?',
+      'Welkom! Fijn dat je bij ons langs bent geweest. Heb je zin om een paar korte vragen over je bezoek te beantwoorden?',
+      'Hoi, leuk dat je er was! Zou je ons willen helpen door een paar vragen over het museum te beantwoorden?',
+      'Dag! Bedankt voor je bezoek aan ons museum. Mogen we je een paar korte vragen stellen?',
+      'Hallo en bedankt voor je bezoek! Wil je een paar vragen over ons museum beantwoorden? Dat helpt ons enorm.'
+    ];
+    let laatsteIntro = -1;
+
+    function kiesIntro() {
+      let i;
+      do { i = Math.floor(Math.random() * INTRO_TEKSTEN.length); } while (i === laatsteIntro && INTRO_TEKSTEN.length > 1);
+      laatsteIntro = i;
+      return INTRO_TEKSTEN[i];
+    }
+    let isListening = false;
+    let isSubmitting = false; // Voorkomt dubbel versturen
+    let recognition = null;
+    let opgebouwdeTekst = '';
+    let stilteTimer = null;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'nl-NL';
+      recognition.interimResults = true;
+      recognition.continuous = true; // Blijf luisteren totdat wij zelf beslissen dat het klaar is
+
+      recognition.onstart = () => {
+        isListening = true;
+        opgebouwdeTekst = '';
+        setUIState('listening', 'Aan het luisteren... Spreek nu (stopt automatisch na 2 sec stilte)');
+        const btn = document.getElementById('micBtn');
+        btn.innerText = '✅ Klaar met spreken (Verstuur nu)';
+        btn.classList.add('active');
+      };
+
+      recognition.onresult = (event) => {
+        let huidigeTekst = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          huidigeTekst += event.results[i][0].transcript;
+        }
+        opgebouwdeTekst = huidigeTekst.trim();
+        
+        if (opgebouwdeTekst) {
+          document.getElementById('transcriptBox').innerText = `"${opgebouwdeTekst}"`;
+          
+          // Reset de stilte-timer elke keer als er een nieuw woord wordt herkend.
+          // Zeg je 1,8 seconde niets meer? Dan verstuurt hij het antwoord automatisch!
+          clearTimeout(stilteTimer);
+          stilteTimer = setTimeout(() => {
+            console.log("Stilte gedetecteerd, antwoord automatisch versturen:", opgebouwdeTekst);
+            rondSpraakbeurtAf();
+          }, 1800);
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.warn("Microfoon melding:", e.error);
+        if (e.error !== 'no-speech') {
+          wachtOpAntwoord = false;
+          stopMicrofoonUI();
+          setUIState('idle', 'Microfoon gepauzeerd. Klik op de knop om te spreken of typ hieronder.');
+        }
+      };
+
+      recognition.onend = () => {
+        const wasLuisterend = isListening;
+        stopMicrofoonUI();
+        // Sluit de browser zelf de microfoon af terwijl we nog op een antwoord wachten, dan versturen we wat er is of luisteren we opnieuw.
+        if (wasLuisterend && wachtOpAntwoord && !isSubmitting) {
+          if (opgebouwdeTekst) {
+            rondSpraakbeurtAf();
+          } else {
+            try { recognition.start(); } catch (e) { console.warn(e); }
+          }
+        }
+      };
+    } else {
+      document.getElementById('micBtn').style.display = 'none';
+    }
+
+    function setUIState(state, label) {
+      document.getElementById('orb').className = 'status-orb' + (state === 'idle' ? '' : ' ' + state);
+      document.getElementById('statusLabel').innerText = label;
+    }
+
+    function stopMicrofoonUI() {
+      isListening = false;
+      clearTimeout(stilteTimer);
+      const btn = document.getElementById('micBtn');
+      btn.innerText = '🎤 Spreek antwoord in';
+      btn.classList.remove('active');
+    }
+
+    function startMicrofoon() {
+      if (!recognition || isListening) return;
+      wachtOpAntwoord = true;
+      opgebouwdeTekst = '';
+      try { recognition.start(); } catch (e) { console.warn('Microfoon kon niet starten:', e); }
+    }
+
+    function toggleListening() {
+      if (isListening) {
+        rondSpraakbeurtAf();
+      } else {
+        startMicrofoon();
+      }
+    }
+
+    function rondSpraakbeurtAf() {
+      if (isSubmitting) return;
+      clearTimeout(stilteTimer);
+      wachtOpAntwoord = false;
+      if (recognition) recognition.stop();
+      const tekst = opgebouwdeTekst.trim();
+      if (!tekst) {
+        setUIState('idle', 'Ik heb niets gehoord. Klik op de knop om te spreken of typ hieronder.');
+        return;
+      }
+      verstuurAntwoord(tekst);
+    }
+
+    function verstuurHandmatig() {
+      const input = document.getElementById('manualInput');
+      const tekst = input.value.trim();
+      if (!tekst || isSubmitting) return;
+      wachtOpAntwoord = false;
+      if (recognition) recognition.abort();
+      verstuurAntwoord(tekst);
+    }
+
+    // Chrome en Edge laden stemmen asynchroon; zonder wachten valt de eerste uiting terug op de standaardstem.
+    function haalStemmen() {
+      return new Promise(resolve => {
+        const nu = speechSynthesis.getVoices();
+        if (nu.length) return resolve(nu);
+        const klaar = () => resolve(speechSynthesis.getVoices());
+        speechSynthesis.addEventListener('voiceschanged', klaar, { once: true });
+        setTimeout(klaar, 1500);
+      });
+    }
+
+    async function spreek(tekst) {
+      if (!('speechSynthesis' in window)) return;
+      const sid = sessieId;
+      const stemmen = await haalStemmen();
+      if (sid !== sessieId) return;
+      return new Promise(resolve => {
+        speechSynthesis.cancel();
+        const uiting = new SpeechSynthesisUtterance(tekst);
+        uiting.lang = 'nl-NL';
+        const nlStemmen = stemmen.filter(v => v.lang.toLowerCase().startsWith('nl'));
+        const stem = VOORKEURSSTEMMEN.map(naam => nlStemmen.find(v => v.name.includes(naam))).find(Boolean)
+          || nlStemmen[0];
+        if (stem) {
+          uiting.voice = stem;
+          uiting.lang = stem.lang;
+        }
+        uiting.onend = resolve;
+        uiting.onerror = resolve;
+        speechSynthesis.speak(uiting);
+      });
+    }
+
+    if ('speechSynthesis' in window) speechSynthesis.getVoices();
+
+    async function startInterview() {
+      const sid = ++sessieId;
+      document.getElementById('startBtn').style.display = 'none';
+      setUIState('thinking', 'Vragen laden...');
+      try {
+        const res = await fetch('/api/vragen');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        vragen = (await res.json()).vragen;
+      } catch (err) {
+        console.error(err);
+        if (sid !== sessieId) return;
+        document.getElementById('questionText').innerText = 'De vragen konden niet worden geladen. Probeer het opnieuw.';
+        document.getElementById('startBtn').style.display = '';
+        setUIState('idle', 'Fout');
+        return;
+      }
+      if (sid !== sessieId) return;
+      gesprek = [];
+      vraagIndex = 0;
+
+      const intro = kiesIntro();
+      document.getElementById('questionText').innerText = intro;
+      setUIState('speaking', 'Welkom!');
+      await spreek(intro);
+      if (sid !== sessieId) return;
+
+      await stelVraag();
+    }
+
+    async function stelVraag() {
+      const sid = sessieId;
+      const vraag = vragen[vraagIndex];
+      document.getElementById('questionText').innerText = vraag;
+      document.getElementById('answerControls').style.display = 'none';
+      document.getElementById('transcriptBox').style.display = 'none';
+      setUIState('speaking', 'De vraag wordt voorgelezen...');
+      await spreek(vraag);
+      if (sid !== sessieId) return;
+
+      const transcriptBox = document.getElementById('transcriptBox');
+      transcriptBox.innerText = 'Uw antwoord verschijnt hier...';
+      transcriptBox.style.display = '';
+      document.getElementById('answerControls').style.display = '';
+      document.getElementById('resetBtn').style.display = '';
+      setUIState('idle', 'Uw beurt: spreek of typ uw antwoord');
+      startMicrofoon();
+    }
+
+    async function verstuurAntwoord(tekst) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      document.getElementById('manualInput').value = '';
+      document.getElementById('answerControls').style.display = 'none';
+      gesprek.push({ vraag: vragen[vraagIndex], antwoord: tekst });
+      vraagIndex++;
+      isSubmitting = false;
+
+      if (vraagIndex < vragen.length) {
+        await stelVraag();
+      } else {
+        await rondGesprekAf();
+      }
+    }
+
+    async function rondGesprekAf() {
+      const sid = sessieId;
+      const vraagEl = document.getElementById('questionText');
+      document.getElementById('transcriptBox').style.display = 'none';
+      vraagEl.innerText = 'Bedankt voor uw antwoorden! Een moment geduld...';
+      setUIState('thinking', 'Antwoorden worden verwerkt...');
+      try {
+        const res = await fetch('/api/analyse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gesprek })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const analyse = await res.json();
+        if (sid !== sessieId) return;
+        toonAnalyse(analyse);
+        vraagEl.innerText = 'Hartelijk dank voor uw tijd!';
+        setUIState('speaking', 'Gesprek afgerond');
+        await spreek('Hartelijk dank voor uw tijd!');
+      } catch (err) {
+        console.error(err);
+        if (sid !== sessieId) return;
+        vraagEl.innerText = 'Er ging iets mis bij het verwerken van uw antwoorden.';
+      }
+      if (sid !== sessieId) return;
+      setUIState('idle', 'Klaar voor de volgende bezoeker');
+      document.getElementById('resetBtn').style.display = '';
+      setTimeout(() => { if (sid === sessieId) resetKiosk(); }, TERUG_NA_MS);
+    }
+
+    function toonAnalyse(analyse) {
+      document.getElementById('analysisContent').textContent = analyse.samenvatting;
+      document.getElementById('analysisBox').style.display = 'block';
+    }
+
+    function resetKiosk() {
+      sessieId++;
+      wachtOpAntwoord = false;
+      isSubmitting = false;
+      clearTimeout(stilteTimer);
+      if (recognition) recognition.abort();
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      stopMicrofoonUI();
+      gesprek = [];
+      vragen = [];
+      vraagIndex = 0;
+      opgebouwdeTekst = '';
+      document.getElementById('questionText').innerText = 'Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.';
+      document.getElementById('transcriptBox').style.display = 'none';
+      document.getElementById('answerControls').style.display = 'none';
+      document.getElementById('analysisBox').style.display = 'none';
+      document.getElementById('resetBtn').style.display = 'none';
+      document.getElementById('manualInput').value = '';
+      document.getElementById('startBtn').style.display = '';
+      setUIState('idle', 'Klaar voor start');
+    }
+  </script>
+</body>
+</html>
