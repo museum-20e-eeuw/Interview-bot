@@ -446,5 +446,28 @@
       "alles_gevonden": "Ja",
       "samenvatting": "Eerste bezoek van een bezoeker zonder specifiek doel, die aangaf alles gevonden te hebben."
     }
+  },
+  {
+    "tijdstip": "2026-10-25T15:33:13",
+    "gesprek": [
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dit is het eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "het regende buiten dus ik dacht ik ga eens naar het museum"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja ik heb alles gevonden behalve iets van Horeca"
+      },
+      {
+        "vraag": "Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt",
+        "antwoord": "Nee dat heb ik niet"
+      }
+    ],
+    "onbewerkte_tekst": "Vraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dit is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: het regende buiten dus ik dacht ik ga eens naar het museum\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja ik heb alles gevonden behalve iets van Horeca\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Nee dat heb ik niet",
+    "analyse": null
   }
 ]
