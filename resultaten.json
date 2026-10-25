@@ -515,5 +515,34 @@
     ],
     "onbewerkte_tekst": "Vraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dat is onze eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: nou gewoon ik wil dat eens een keertje eruit\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja ik kon er expositie niet vinden\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Nee eigenlijk niet",
     "analyse": null
+  },
+  {
+    "datum": "25-10-2026",
+    "tijd": "19:26:27",
+    "tijdstip": "2026-10-25T19:26:27",
+    "gesprek": [
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dat is het eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Nou ik had niks te doen"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "ik miste de broodjes kaas en dat horeca"
+      },
+      {
+        "vraag": "Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt",
+        "antwoord": "Ja dat heb ik nadat ik bij de expositie ben geweest"
+      },
+      {
+        "vraag": "Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie",
+        "antwoord": "nee nee"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 25-10-2026 | Tijd: 19:26:27\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dat is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Nou ik had niks te doen\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: ik miste de broodjes kaas en dat horeca\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Ja dat heb ik nadat ik bij de expositie ben geweest\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: nee nee",
+    "analyse": null
   }
 ]
