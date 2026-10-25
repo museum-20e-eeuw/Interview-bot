@@ -544,5 +544,30 @@
     ],
     "onbewerkte_tekst": "Datum: 25-10-2026 | Tijd: 19:26:27\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dat is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Nou ik had niks te doen\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: ik miste de broodjes kaas en dat horeca\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Ja dat heb ik nadat ik bij de expositie ben geweest\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: nee nee",
     "analyse": null
+  },
+  {
+    "datum": "25-10-2026",
+    "tijd": "19:42:37",
+    "tijdstip": "2026-10-25T19:42:37",
+    "gesprek": [
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "nee nee"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Ik had niks te doen"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja alles"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "Nee eigenlijk niet"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 25-10-2026 | Tijd: 19:42:37\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: nee nee\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Ik had niks te doen\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja alles\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Nee eigenlijk niet",
+    "analyse": null
   }
 ]
