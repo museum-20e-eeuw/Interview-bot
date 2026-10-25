@@ -569,5 +569,30 @@
     ],
     "onbewerkte_tekst": "Datum: 25-10-2026 | Tijd: 19:42:37\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: nee nee\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Ik had niks te doen\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja alles\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Nee eigenlijk niet",
     "analyse": null
+  },
+  {
+    "datum": "25-10-2026",
+    "tijd": "20:05:19",
+    "tijdstip": "2026-10-25T20:05:19",
+    "gesprek": [
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "komt wel een spelletje te spelen bijna"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "pas"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Nee ik kom geen parkeerplek"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "Waarom is we wegwijzering zo"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 25-10-2026 | Tijd: 20:05:19\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: komt wel een spelletje te spelen bijna\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: pas\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Nee ik kom geen parkeerplek\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Waarom is we wegwijzering zo",
+    "analyse": null
   }
 ]
