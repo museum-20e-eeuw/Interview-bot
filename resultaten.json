@@ -492,5 +492,28 @@
     ],
     "onbewerkte_tekst": "Vraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dit is onze eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: het regenen Storm naar buiten dus ik dacht ik ga naar het museum\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Nee ik kon de expositie niet vinden\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Nee eigenlijk niet",
     "analyse": null
+  },
+  {
+    "tijdstip": "2026-10-25T16:44:27",
+    "gesprek": [
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dat is onze eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "nou gewoon ik wil dat eens een keertje eruit"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja ik kon er expositie niet vinden"
+      },
+      {
+        "vraag": "Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie",
+        "antwoord": "Nee eigenlijk niet"
+      }
+    ],
+    "onbewerkte_tekst": "Vraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dat is onze eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: nou gewoon ik wil dat eens een keertje eruit\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja ik kon er expositie niet vinden\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Nee eigenlijk niet",
+    "analyse": null
   }
 ]
