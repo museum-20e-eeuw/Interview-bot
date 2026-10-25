@@ -1,0 +1,18 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["vragen.txt"]
+
+[[redirects]]
+  from = "/api/vragen"
+  to = "/.netlify/functions/vragen"
+  status = 200
+
+[[redirects]]
+  from = "/api/analyse"
+  to = "/.netlify/functions/analyse"
+  status = 200
+

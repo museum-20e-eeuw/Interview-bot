@@ -2,56 +2,74 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Informatiezuil Interview</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body {
       background: #0f172a; color: #f8fafc;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 2rem; text-align: center; user-select: none;
+      min-height: 100vh; min-height: 100dvh; padding: 2rem; text-align: center; user-select: none;
     }
     .kiosk-card {
-      background: #1e293b; border-radius: 24px; padding: 3rem;
+      background: #1e293b; border-radius: 24px; padding: 2rem 2.5rem;
       max-width: 800px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-      border: 1px solid #334155;
+      border: 1px solid #334155; position: relative;
     }
     .status-orb {
-      width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 1.5rem;
+      width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 1rem;
       background: #475569; transition: all 0.3s ease;
     }
     .status-orb.speaking { background: #3b82f6; box-shadow: 0 0 35px #3b82f6; animation: pulse 1.2s infinite; }
     .status-orb.listening { background: #10b981; box-shadow: 0 0 35px #10b981; animation: pulse 1s infinite; }
     .status-orb.thinking { background: #f59e0b; box-shadow: 0 0 35px #f59e0b; animation: pulse 0.8s infinite; }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+    .idle-icon {
+      display: block; width: 128px; height: 128px; object-fit: contain;
+      margin: 0 auto 1.5rem; transform-origin: center; will-change: transform, opacity;
+    }
+    .idle-icon.is-rotating { animation: icon-rotate var(--idle-duration) ease-in-out both; }
+    .idle-icon.is-pulsing { animation: icon-pulse var(--idle-duration) ease-in-out both; }
+    .idle-icon.is-flashing { animation: icon-flash var(--idle-duration) ease-in-out both; }
+    @keyframes icon-rotate { to { transform: rotate(360deg); } }
+    @keyframes icon-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+    @keyframes icon-flash {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.2; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .idle-icon.is-rotating, .idle-icon.is-pulsing, .idle-icon.is-flashing { animation: none; }
+    }
 
-    .status-label { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-bottom: 1rem; }
-    .question-text { font-size: 1.8rem; font-weight: 600; line-height: 1.4; min-height: 100px; margin-bottom: 1.5rem; }
+    /* Per scherm één visueel element bovenaan: icoon (idle), statuscirkel (gesprek) of volumemeter (antwoord) */
+    .kiosk-card[data-scherm="idle"] #orb,
+    .kiosk-card[data-scherm="idle"] .volume-meter,
+    .kiosk-card[data-scherm="gesprek"] .volume-meter,
+    .kiosk-card[data-scherm="antwoord"] #orb,
+    .kiosk-card:not([data-scherm="idle"]) .idle-icon { display: none; }
+
+    .status-label { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-bottom: 0.6rem; }
+    .question-text { font-size: 1.8rem; font-weight: 600; line-height: 1.4; min-height: 70px; margin-bottom: 1rem; white-space: pre-line; }
     .transcript-box {
-      font-size: 1.3rem; color: #38bdf8; min-height: 60px; margin-bottom: 1.5rem;
-      font-style: italic; background: #0f172a; padding: 1rem; border-radius: 12px;
+      font-size: 1.3rem; color: #38bdf8; min-height: 48px; margin-bottom: 1rem;
+      font-style: italic; background: #0f172a; padding: 0.7rem 1rem; border-radius: 12px;
       border: 1px solid #1e293b;
     }
+    .volume-meter { margin: 0 0 1rem; }
+    .analog-meter { display: block; width: min(260px, 70%); margin: 0 auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45)); }
+    .meter-label { font: 600 9px 'Segoe UI', system-ui, sans-serif; fill: #3b3320; text-anchor: middle; }
+    .meter-vu { font: 700 16px 'Segoe UI', system-ui, sans-serif; fill: #3b3320; text-anchor: middle; letter-spacing: 2px; }
+    .volume-meter-status { color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem; }
+    .volume-meter-status:empty { display: none; }
     .btn {
-      background: #2563eb; color: white; border: none; padding: 1.1rem 2.4rem;
+      background: #E7501E; color: white; border: none; padding: 1.1rem 2.4rem;
       font-size: 1.3rem; font-weight: 600; border-radius: 999px; cursor: pointer;
-      transition: background 0.2s, transform 0.1s; margin: 0.5rem;
+      transition: background 0.2s, transform 0.1s; margin: 0.4rem;
     }
     .btn:active { transform: scale(0.97); }
-    .btn.secondary { background: #475569; }
+    .btn.secondary { background: #475569; padding: 0.7rem 1.5rem; font-size: 1rem; }
     .btn.listen-btn { background: #059669; }
     .btn.listen-btn.active { background: #dc2626; }
-
-    .input-row {
-      display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.2rem;
-    }
-    .text-input {
-      background: #0f172a; border: 1px solid #475569; color: white;
-      padding: 0.8rem 1.2rem; border-radius: 999px; font-size: 1.1rem; width: 65%;
-    }
-    .send-btn {
-      background: #3b82f6; color: white; border: none; padding: 0.8rem 1.5rem;
-      border-radius: 999px; font-size: 1.1rem; font-weight: 600; cursor: pointer;
-    }
 
     .analysis-box {
       margin-top: 2rem; text-align: left; background: #0f172a; padding: 1.5rem;
@@ -60,11 +78,159 @@
     .analysis-box h3 { color: #38bdf8; margin-bottom: 0.8rem; }
     .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; font-size: 1.05rem; }
     .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; background: #334155; font-weight: bold; }
+
+    /* ==========================================
+       WEB / MOBIELE TELEFOON MODUS (config.json: "mode": "web")
+       ========================================== */
+    body[data-mode="web"] .kiosk-card {
+      max-width: 390px;
+      width: 100%;
+      padding: 2.2rem 1.4rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    body[data-mode="web"] .idle-icon {
+      width: 96px;
+      height: 96px;
+      margin-bottom: 1.2rem;
+    }
+    body[data-mode="web"] .status-orb {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 0.8rem;
+    }
+    body[data-mode="web"] .status-label {
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+    body[data-mode="web"] .question-text {
+      font-size: 1.25rem;
+      line-height: 1.4;
+      min-height: 3.5rem;
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    body[data-mode="web"] .transcript-box {
+      font-size: 1.05rem;
+      padding: 0.65rem 0.9rem;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    body[data-mode="web"] .volume-meter {
+      width: 100%;
+      margin-bottom: 0.8rem;
+    }
+    body[data-mode="web"] .analog-meter {
+      width: min(210px, 78%);
+    }
+    body[data-mode="web"] #controls,
+    body[data-mode="web"] #answerControls {
+      width: 100%;
+    }
+    body[data-mode="web"] .btn {
+      width: 100%;
+      max-width: 310px;
+      padding: 0.95rem 1.4rem;
+      font-size: 1.1rem;
+      margin: 0.35rem auto;
+      display: block;
+    }
+    body[data-mode="web"] .btn.secondary {
+      font-size: 0.95rem;
+      padding: 0.75rem 1.2rem;
+    }
+    body[data-mode="web"] .analysis-box {
+      margin-top: 1.2rem;
+      padding: 1rem 1.1rem;
+      width: 100%;
+      font-size: 0.95rem;
+    }
+    body[data-mode="web"] .analysis-box h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Op desktop/tablet schermen in web-modus: toon een realistisch telefoon-frame */
+    @media (min-width: 500px) {
+      body[data-mode="web"] {
+        padding: 1.5rem;
+        background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%);
+      }
+      body[data-mode="web"] .kiosk-card {
+        min-height: min(760px, 90dvh);
+        max-height: 92dvh;
+        overflow-y: auto;
+        border-radius: 44px;
+        border: 10px solid #090d16;
+        box-shadow:
+          0 0 0 2px #334155,
+          0 30px 60px -15px rgba(0, 0, 0, 0.75);
+        padding-top: 3rem;
+        padding-bottom: 2.5rem;
+      }
+      /* Telefoon speaker/notch bovenaan */
+      body[data-mode="web"] .kiosk-card::before {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 96px;
+        height: 22px;
+        background: #090d16;
+        border-radius: 999px;
+      }
+      /* Home-indicator streepje onderaan */
+      body[data-mode="web"] .kiosk-card::after {
+        content: "";
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 110px;
+        height: 4px;
+        background: #475569;
+        border-radius: 999px;
+        opacity: 0.7;
+      }
+    }
+
+    /* Op een echte mobiele telefoon in web-modus: schermvullend zonder kunstmatige rand */
+    @media (max-width: 499px) {
+      body[data-mode="web"] {
+        padding: 0;
+        background: #1e293b;
+      }
+      body[data-mode="web"] .kiosk-card {
+        max-width: 100%;
+        min-height: 100dvh;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        padding: 1.5rem 1.25rem;
+      }
+    }
   </style>
 </head>
-<body>
+<body data-mode="zuil">
 
-  <div class="kiosk-card">
+  <div class="kiosk-card" data-scherm="idle">
+    <img id="idleIcon" class="idle-icon" src="/static/museum.ico" alt="" aria-hidden="true">
+    <div id="volumeMeter" class="volume-meter">
+      <svg id="analogMeter" class="analog-meter" viewBox="0 0 200 120" role="meter" aria-label="Microfoonvolume" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+        <rect x="2" y="2" width="196" height="116" rx="10" fill="#f3e9c6" stroke="#6b5b2e" stroke-width="3"/>
+        <g id="meterScale"></g>
+        <text x="100" y="86" class="meter-vu">VU</text>
+        <g id="meterNeedle">
+          <line x1="100" y1="108" x2="100" y2="32" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <circle cx="100" cy="108" r="7" fill="#3b3320"/>
+      </svg>
+      <div id="volumeMeterStatus" class="volume-meter-status"></div>
+    </div>
     <div id="orb" class="status-orb"></div>
     <div id="statusLabel" class="status-label">Klaar voor start</div>
     
@@ -81,11 +247,6 @@
       
       <div id="answerControls" style="display: none;">
         <button id="micBtn" class="btn listen-btn" onclick="toggleListening()">🎤 Spreek antwoord in</button>
-        
-        <div class="input-row">
-          <input type="text" id="manualInput" class="text-input" placeholder="Of typ hier uw antwoord en druk op Enter..." onkeydown="if(event.key==='Enter') verstuurHandmatig()">
-          <button class="send-btn" onclick="verstuurHandmatig()">Verstuur</button>
-        </div>
       </div>
 
       <button id="resetBtn" class="btn secondary" style="display: none;" onclick="resetKiosk()">Nieuwe Bezoeker</button>
@@ -98,13 +259,18 @@
   </div>
 
   <script>
+    let appMode = 'zuil'; // Wordt geladen uit config.json ('zuil' of 'web')
     let gesprek = [];
     let vragen = [];
+    let optioneleVragen = {};
+    let algemeneVraag = '';
+    let algemeneGesteld = false;
+    let gesteldeExtras = new Set();
     let vraagIndex = 0;
     let wachtOpAntwoord = false; // True zolang we een gesproken antwoord verwachten
     let sessieId = 0; // Verandert bij reset, zodat oude async acties stoppen
-    const VOORKEURSSTEMMEN = ['Colette', 'Google Nederlands']; // Daarna de eerste Nederlandse stem
-    const TERUG_NA_MS = 10000; // Tijd dat de samenvatting zichtbaar blijft
+    const VOORKEURSSTEMMEN = ['Fenna', 'Colette', 'Microsoft Frank', 'Google Nederlands']; // Fenna en Colette zijn online Edge-stemmen; zonder internet valt de zuil terug op de lokale stem Frank
+    const SAMENVATTING_WEERGAVE_MS = 6000;
     const INTRO_TEKSTEN = [
       'Hallo, wat leuk dat je ons museum hebt bezocht! Zou je misschien een paar vragen over ons museum willen beantwoorden?',
       'Welkom! Fijn dat je bij ons langs bent geweest. Heb je zin om een paar korte vragen over je bezoek te beantwoorden?',
@@ -112,7 +278,37 @@
       'Dag! Bedankt voor je bezoek aan ons museum. Mogen we je een paar korte vragen stellen?',
       'Hallo en bedankt voor je bezoek! Wil je een paar vragen over ons museum beantwoorden? Dat helpt ons enorm.'
     ];
+    const BEDANK_TEKSTEN = [
+      'Dank je wel voor je antwoord.',
+      'Bedankt, fijn dat je dit deelt.',
+      'Dank je, dat helpt ons verder.',
+      'Ok, bedankt',
+      'Dank je wel, ik waardeer je antwoord.'
+    ];
+    const IDLE_TOESPRAKEN = [
+      'Hallo mag ik kort even iets aan je vragen?',
+      'Hallo, heb je heel even tijd voor een paar korte vragen?',
+      'Hoi, mag ik je kort iets vragen over je bezoek?',
+      'Goedendag, zou ik je een paar korte vragen mogen stellen?',
+      'Hallo, wil je ons kort helpen met een paar vragen over het museum?'
+    ];
+    const KNOP_INSTRUCTIE = 'Druk op de oranje knop om het gesprek te starten.';
+    const IDLE_TOESPRAAK_INTERVAL_MS = 25000;
+    const METER_HOEK = 50; // De naald loopt van -50 tot +50 graden
+    const METER_PIVOT = { x: 100, y: 108 };
     let laatsteIntro = -1;
+    let laatsteBedankje = -1;
+    let laatsteIdleToespraak = -1;
+    let idleToespraakTimer = null;
+    let samenvattingTimer = null;
+    let isIdleMode = true;
+    let huidigeSpraakAfronden = null;
+    let huidigeUiting = null;
+    let stemmenCache = null;
+    let stemmenPromise = null;
+    let idleIconTimer = null;
+    let idleIconActief = false;
+    let idleAnimatieVolgorde = [];
 
     function kiesIntro() {
       let i;
@@ -120,11 +316,228 @@
       laatsteIntro = i;
       return INTRO_TEKSTEN[i];
     }
+
+    function kiesWillekeurigeTekst(teksten, laatstGebruikt) {
+      let i;
+      do { i = Math.floor(Math.random() * teksten.length); } while (i === laatstGebruikt && teksten.length > 1);
+      return { tekst: teksten[i], index: i };
+    }
+
+    function stopIdleToespraak() {
+      isIdleMode = false;
+      clearTimeout(idleToespraakTimer);
+      stopIdleIconAnimation();
+    }
+
+    function schud(volgorde) {
+      for (let i = volgorde.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [volgorde[i], volgorde[j]] = [volgorde[j], volgorde[i]];
+      }
+      return volgorde;
+    }
+
+    function planIdleIconAnimation() {
+      if (!idleIconActief || !isIdleMode) return;
+      if (!idleAnimatieVolgorde.length) {
+        idleAnimatieVolgorde = schud(['is-rotating', 'is-pulsing', 'is-flashing']);
+      }
+      const animatie = idleAnimatieVolgorde.shift();
+      const duur = 900 + Math.floor(Math.random() * 900);
+      const icoon = document.getElementById('idleIcon');
+      icoon.style.setProperty('--idle-duration', `${duur}ms`);
+      icoon.classList.add(animatie);
+      idleIconTimer = setTimeout(() => {
+        icoon.classList.remove(animatie);
+        idleIconTimer = setTimeout(planIdleIconAnimation, 300 + Math.floor(Math.random() * 1200));
+      }, duur);
+    }
+
+    function startIdleIconAnimation() {
+      stopIdleIconAnimation();
+      idleIconActief = true;
+      idleAnimatieVolgorde = [];
+      planIdleIconAnimation();
+    }
+
+    function stopIdleIconAnimation() {
+      idleIconActief = false;
+      clearTimeout(idleIconTimer);
+      idleIconTimer = null;
+      const icoon = document.getElementById('idleIcon');
+      icoon.classList.remove('is-rotating', 'is-pulsing', 'is-flashing');
+      icoon.style.removeProperty('--idle-duration');
+    }
+
+    async function startIdleToespraak() {
+      if (!isIdleMode || appMode === 'web') return;
+      const gekozen = kiesWillekeurigeTekst(IDLE_TOESPRAKEN, laatsteIdleToespraak);
+      laatsteIdleToespraak = gekozen.index;
+      document.getElementById('questionText').innerText = `${gekozen.tekst}\n${KNOP_INSTRUCTIE}`;
+      setUIState('speaking', 'Welkom');
+      // Eén uiting voor beide zinnen: een tweede uiting zou opnieuw met een koude start beginnen.
+      await spreek(`${gekozen.tekst} ${KNOP_INSTRUCTIE}`);
+      if (!isIdleMode || appMode === 'web') return;
+      setUIState('idle', 'Klaar voor start');
+      idleToespraakTimer = setTimeout(startIdleToespraak, IDLE_TOESPRAAK_INTERVAL_MS);
+    }
+
+    function meterPunt(straal, graden) {
+      const rad = graden * Math.PI / 180;
+      return { x: METER_PIVOT.x + straal * Math.sin(rad), y: METER_PIVOT.y - straal * Math.cos(rad) };
+    }
+
+    function bouwMeterSchaal() {
+      const ns = 'http://www.w3.org/2000/svg';
+      const schaal = document.getElementById('meterScale');
+      const maak = (naam, attrs) => {
+        const el = document.createElementNS(ns, naam);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        schaal.appendChild(el);
+        return el;
+      };
+      const boog = (van, tot, kleur) => {
+        const a = meterPunt(80, -METER_HOEK + van * 10);
+        const b = meterPunt(80, -METER_HOEK + tot * 10);
+        maak('path', { d: `M ${a.x} ${a.y} A 80 80 0 0 1 ${b.x} ${b.y}`, fill: 'none', stroke: kleur, 'stroke-width': 3 });
+      };
+      boog(0, 8, '#3b3320');
+      boog(8, 10, '#b91c1c');
+      for (let i = 0; i <= 10; i++) {
+        const graden = -METER_HOEK + i * 10;
+        const groot = i % 2 === 0;
+        const kleur = i >= 8 ? '#b91c1c' : '#3b3320';
+        const van = meterPunt(80, graden);
+        const tot = meterPunt(groot ? 68 : 73, graden);
+        maak('line', { x1: van.x, y1: van.y, x2: tot.x, y2: tot.y, stroke: kleur, 'stroke-width': groot ? 2 : 1 });
+        if (groot) {
+          const label = meterPunt(59, graden);
+          maak('text', { x: label.x, y: label.y + 3, class: 'meter-label' }).textContent = String(i);
+        }
+      }
+    }
+
+    function zetMeterNaald(waarde) {
+      const graden = -METER_HOEK + waarde * METER_HOEK * 2;
+      document.getElementById('meterNeedle').setAttribute('transform', `rotate(${graden} ${METER_PIVOT.x} ${METER_PIVOT.y})`);
+      document.getElementById('analogMeter').setAttribute('aria-valuenow', String(Math.round(waarde * 10)));
+    }
+
+    function startVolumeMeter() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+      const requestId = ++volumeMeterRequestId;
+      const status = document.getElementById('volumeMeterStatus');
+      status.innerText = '';
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        if (requestId !== volumeMeterRequestId || !isListening) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+        volumeStream = stream;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          stream.getTracks().forEach(track => track.stop());
+          volumeStream = null;
+          status.innerText = 'Volumemeter niet beschikbaar';
+          return;
+        }
+        volumeAudioContext = new AudioContextClass();
+        const analyser = volumeAudioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        volumeAudioContext.createMediaStreamSource(stream).connect(analyser);
+        const samples = new Float32Array(analyser.fftSize);
+        let naald = 0;
+        const measure = () => {
+          if (requestId !== volumeMeterRequestId) return;
+          analyser.getFloatTimeDomainData(samples);
+          let totaal = 0;
+          for (const sample of samples) totaal += sample * sample;
+          const db = 20 * Math.log10(Math.max(Math.sqrt(totaal / samples.length), 1e-5));
+          const doel = Math.min(1, Math.max(0, (db + 50) / 40)); // -50 dB is nul, -10 dB is vol uitslag
+          // Een echte naald reageert snel omhoog en zakt langzaam terug.
+          naald += (doel - naald) * (doel > naald ? 0.35 : 0.08);
+          zetMeterNaald(naald);
+          volumeAnimationFrame = requestAnimationFrame(measure);
+        };
+        measure();
+      }).catch(error => {
+        if (requestId !== volumeMeterRequestId) return;
+        console.warn('Volumemeter kon niet starten:', error);
+        ruimVolumeMeterOp();
+        status.innerText = 'Volumemeter niet beschikbaar';
+      });
+    }
+
+    function ruimVolumeMeterOp() {
+      if (volumeAnimationFrame !== null) cancelAnimationFrame(volumeAnimationFrame);
+      volumeAnimationFrame = null;
+      if (volumeStream) volumeStream.getTracks().forEach(track => track.stop());
+      volumeStream = null;
+      if (volumeAudioContext) volumeAudioContext.close().catch(error => console.warn('AudioContext kon niet sluiten:', error));
+      volumeAudioContext = null;
+      zetMeterNaald(0);
+    }
+
+    function stopVolumeMeter() {
+      volumeMeterRequestId++;
+      ruimVolumeMeterOp();
+    }
+
+    function zetScherm(naam) {
+      document.querySelector('.kiosk-card').dataset.scherm = naam;
+    }
+
+    bouwMeterSchaal();
+    zetMeterNaald(0);
+
+    const OPTIONELE_TRIGGERS = {
+      horeca: /\bhoreca\b|\brestaurant\b|\bcafe\b|\beten\b|\bdrinken\b/,
+      expositie: /\bexpositie(?:s)?\b|\bexpo\b|\btentoonstelling(?:en)?\b/
+    };
+
+    function splitsVragen(vraagregels) {
+      const gewoneVragen = [];
+      const extras = {};
+      let algemeneVraag = '';
+      for (const regel of vraagregels) {
+        const optioneel = regel.match(/^Optional:\s*"key:([^"]+)"\s*(.+)$/i);
+        const algemeen = regel.match(/^General:\s*(.+)$/i);
+        if (optioneel) extras[optioneel[1].trim().toLowerCase()] = optioneel[2].trim();
+        else if (algemeen) algemeneVraag = algemeen[1].trim();
+        else gewoneVragen.push(regel);
+      }
+      return { gewoneVragen, extras, algemeneVraag };
+    }
+
+    // Noemt het antwoord horeca of een expositie, dan volgt direct de bijbehorende optionele vraag.
+    function plaatsOptioneleVragen(antwoord) {
+      const tekst = antwoord.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const nieuw = [];
+      for (const [sleutel, patroon] of Object.entries(OPTIONELE_TRIGGERS)) {
+        if (optioneleVragen[sleutel] && !gesteldeExtras.has(sleutel) && patroon.test(tekst)) {
+          gesteldeExtras.add(sleutel);
+          nieuw.push(optioneleVragen[sleutel]);
+        }
+      }
+      vragen.splice(vraagIndex, 0, ...nieuw);
+    }
+
+    // De algemene vraag komt alleen aan bod als er in geen enkel antwoord horeca of een expositie is genoemd.
+    function plaatsAlgemeneVraag() {
+      if (!algemeneVraag || algemeneGesteld || vraagIndex < vragen.length || gesteldeExtras.size > 0) return;
+      algemeneGesteld = true;
+      vragen.push(algemeneVraag);
+    }
+
     let isListening = false;
     let isSubmitting = false; // Voorkomt dubbel versturen
     let recognition = null;
     let opgebouwdeTekst = '';
     let stilteTimer = null;
+    let volumeStream = null;
+    let volumeAudioContext = null;
+    let volumeAnimationFrame = null;
+    let volumeMeterRequestId = 0;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -136,13 +549,15 @@
       recognition.onstart = () => {
         isListening = true;
         opgebouwdeTekst = '';
-        setUIState('listening', 'Aan het luisteren... Spreek nu (stopt automatisch na 2 sec stilte)');
+        setUIState('listening', 'Aan het luisteren...');
+        startVolumeMeter();
         const btn = document.getElementById('micBtn');
-        btn.innerText = '✅ Klaar met spreken (Verstuur nu)';
+        btn.innerText = '✅ Klaar met spreken';
         btn.classList.add('active');
       };
 
       recognition.onresult = (event) => {
+        if (!wachtOpAntwoord) return; // Late resultaten na het versturen mogen geen tweede antwoord starten
         let huidigeTekst = '';
         for (let i = 0; i < event.results.length; ++i) {
           huidigeTekst += event.results[i][0].transcript;
@@ -167,7 +582,7 @@
         if (e.error !== 'no-speech') {
           wachtOpAntwoord = false;
           stopMicrofoonUI();
-          setUIState('idle', 'Microfoon gepauzeerd. Klik op de knop om te spreken of typ hieronder.');
+          setUIState('idle', 'Microfoon gepauzeerd. Klik op de knop om te spreken.');
         }
       };
 
@@ -195,6 +610,7 @@
     function stopMicrofoonUI() {
       isListening = false;
       clearTimeout(stilteTimer);
+      stopVolumeMeter();
       const btn = document.getElementById('micBtn');
       btn.innerText = '🎤 Spreek antwoord in';
       btn.classList.remove('active');
@@ -222,30 +638,44 @@
       if (recognition) recognition.stop();
       const tekst = opgebouwdeTekst.trim();
       if (!tekst) {
-        setUIState('idle', 'Ik heb niets gehoord. Klik op de knop om te spreken of typ hieronder.');
+        setUIState('idle', 'Ik heb niets gehoord. Klik op de knop om te spreken.');
         return;
       }
       verstuurAntwoord(tekst);
     }
 
-    function verstuurHandmatig() {
-      const input = document.getElementById('manualInput');
-      const tekst = input.value.trim();
-      if (!tekst || isSubmitting) return;
-      wachtOpAntwoord = false;
-      if (recognition) recognition.abort();
-      verstuurAntwoord(tekst);
-    }
-
     // Chrome en Edge laden stemmen asynchroon; zonder wachten valt de eerste uiting terug op de standaardstem.
     function haalStemmen() {
-      return new Promise(resolve => {
-        const nu = speechSynthesis.getVoices();
-        if (nu.length) return resolve(nu);
-        const klaar = () => resolve(speechSynthesis.getVoices());
-        speechSynthesis.addEventListener('voiceschanged', klaar, { once: true });
-        setTimeout(klaar, 1500);
+      if (stemmenCache) return Promise.resolve(stemmenCache);
+      if (stemmenPromise) return stemmenPromise;
+      stemmenPromise = new Promise(resolve => {
+        let afgerond = false;
+        const klaar = () => {
+          if (afgerond) return;
+          const stemmen = speechSynthesis.getVoices();
+          if (!stemmen.length) return;
+          afgerond = true;
+          stemmenCache = stemmen;
+          clearTimeout(timeout);
+          resolve(stemmen);
+        };
+        const timeout = setTimeout(() => {
+          if (afgerond) return;
+          afgerond = true;
+          stemmenCache = speechSynthesis.getVoices();
+          resolve(stemmenCache);
+        }, 1500);
+        klaar();
+        if (!afgerond) speechSynthesis.addEventListener('voiceschanged', klaar, { once: true });
       });
+      return stemmenPromise;
+    }
+
+    function annuleerSpraak() {
+      if (huidigeUiting) huidigeUiting.onend = null;
+      huidigeUiting = null;
+      if (huidigeSpraakAfronden) huidigeSpraakAfronden();
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
 
     async function spreek(tekst) {
@@ -254,37 +684,113 @@
       const stemmen = await haalStemmen();
       if (sid !== sessieId) return;
       return new Promise(resolve => {
-        speechSynthesis.cancel();
+        let afgerond = false;
+        let fallbackTimer;
+        const afronden = () => {
+          if (afgerond) return;
+          afgerond = true;
+          clearTimeout(fallbackTimer);
+          if (huidigeSpraakAfronden === afronden) huidigeSpraakAfronden = null;
+          if (huidigeUiting === uiting) huidigeUiting = null;
+          resolve();
+        };
         const uiting = new SpeechSynthesisUtterance(tekst);
         uiting.lang = 'nl-NL';
         const nlStemmen = stemmen.filter(v => v.lang.toLowerCase().startsWith('nl'));
         const stem = VOORKEURSSTEMMEN.map(naam => nlStemmen.find(v => v.name.includes(naam))).find(Boolean)
-          || nlStemmen[0];
+          || nlStemmen.find(v => v.localService) || nlStemmen[0];
         if (stem) {
           uiting.voice = stem;
           uiting.lang = stem.lang;
         }
-        uiting.onend = resolve;
-        uiting.onerror = resolve;
-        speechSynthesis.speak(uiting);
+        uiting.rate = 0.95;
+        uiting.onend = afronden;
+        uiting.onerror = afronden;
+        huidigeUiting = uiting;
+        huidigeSpraakAfronden = afronden;
+        fallbackTimer = setTimeout(() => {
+          speechSynthesis.cancel();
+          afronden();
+        }, Math.max(10000, tekst.length * 160 + 5000));
+        try {
+          speechSynthesis.speak(uiting);
+        } catch (error) {
+          console.warn('Tekst kon niet worden uitgesproken:', error);
+          afronden();
+        }
       });
     }
 
     if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
+    // Sommige geluidskaarten gaan in stand-by tussen twee uitingen; dan wordt het begin van de volgende tekst afgekapt.
+    // Een onhoorbare stroom (circa -80 dB) houdt het apparaat wakker.
+    let wakkerContext = null;
+    function houdAudioWakker() {
+      if (wakkerContext) {
+        if (wakkerContext.state === 'suspended') wakkerContext.resume().catch(() => {});
+        return;
+      }
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      try {
+        wakkerContext = new AudioContextClass();
+        const buffer = wakkerContext.createBuffer(1, wakkerContext.sampleRate, wakkerContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.0001;
+        const bron = wakkerContext.createBufferSource();
+        bron.buffer = buffer;
+        bron.loop = true;
+        bron.connect(wakkerContext.destination);
+        bron.start();
+      } catch (error) {
+        console.warn('Audio kon niet wakker worden gehouden:', error);
+      }
+    }
+    houdAudioWakker();
+    ['pointerdown', 'keydown'].forEach(naam => document.addEventListener(naam, houdAudioWakker));
+
+    async function haalVragenOp() {
+      try {
+        const res = await fetch('/api/vragen');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.vragen) && data.vragen.length) return data.vragen;
+        }
+      } catch (e) {
+        console.warn('/api/vragen niet bereikbaar, terugvallen op /vragen.txt:', e);
+      }
+      const resTxt = await fetch('/vragen.txt');
+      if (!resTxt.ok) throw new Error('HTTP ' + resTxt.status);
+      const tekst = await resTxt.text();
+      return tekst
+        .split(/\r?\n/)
+        .map(r => r.trim())
+        .filter(r => r.length > 0 && !r.startsWith('#'));
+    }
+
     async function startInterview() {
       const sid = ++sessieId;
+      stopIdleToespraak();
+      annuleerSpraak();
+      houdAudioWakker();
+      zetScherm('gesprek');
       document.getElementById('startBtn').style.display = 'none';
       setUIState('thinking', 'Vragen laden...');
       try {
-        const res = await fetch('/api/vragen');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        vragen = (await res.json()).vragen;
+        const vraagregels = await haalVragenOp();
+        const geladen = splitsVragen(vraagregels);
+        vragen = geladen.gewoneVragen;
+        optioneleVragen = geladen.extras;
+        algemeneVraag = geladen.algemeneVraag;
+        algemeneGesteld = false;
+        gesteldeExtras = new Set();
       } catch (err) {
         console.error(err);
         if (sid !== sessieId) return;
         document.getElementById('questionText').innerText = 'De vragen konden niet worden geladen. Probeer het opnieuw.';
         document.getElementById('startBtn').style.display = '';
+        zetScherm('idle');
         setUIState('idle', 'Fout');
         return;
       }
@@ -293,47 +799,57 @@
       vraagIndex = 0;
 
       const intro = kiesIntro();
-      document.getElementById('questionText').innerText = intro;
-      setUIState('speaking', 'Welkom!');
-      await spreek(intro);
-      if (sid !== sessieId) return;
-
-      await stelVraag();
+      await stelVraag(intro, 'tekst');
     }
 
-    async function stelVraag() {
+    // Het bedankje of de intro wordt samen met de vraag in één uiting uitgesproken, zodat er geen haperende pauze tussen valt.
+    async function stelVraag(vooraf = '', waar = 'label') {
       const sid = sessieId;
       const vraag = vragen[vraagIndex];
-      document.getElementById('questionText').innerText = vraag;
+      const questionEl = document.getElementById('questionText');
+      questionEl.innerText = vooraf && waar === 'tekst' ? `${vooraf}\n\n${vraag}` : vraag;
+      zetScherm('gesprek');
       document.getElementById('answerControls').style.display = 'none';
       document.getElementById('transcriptBox').style.display = 'none';
-      setUIState('speaking', 'De vraag wordt voorgelezen...');
-      await spreek(vraag);
+      setUIState('speaking', vooraf && waar === 'label' ? vooraf : 'De vraag wordt voorgelezen...');
+      await spreek(vooraf ? `${vooraf} ${vraag}` : vraag);
       if (sid !== sessieId) return;
 
+      questionEl.innerText = vraag; // In het luisterscherm alleen de vraag, zonder intro
       const transcriptBox = document.getElementById('transcriptBox');
       transcriptBox.innerText = 'Uw antwoord verschijnt hier...';
       transcriptBox.style.display = '';
       document.getElementById('answerControls').style.display = '';
-      document.getElementById('resetBtn').style.display = '';
-      setUIState('idle', 'Uw beurt: spreek of typ uw antwoord');
+      zetScherm('antwoord');
+      setUIState('idle', 'Uw beurt: spreek uw antwoord');
       startMicrofoon();
     }
 
     async function verstuurAntwoord(tekst) {
-      if (isSubmitting) return;
+      if (isSubmitting || vraagIndex >= vragen.length) return;
       isSubmitting = true;
-      document.getElementById('manualInput').value = '';
+      zetScherm('gesprek');
       document.getElementById('answerControls').style.display = 'none';
-      gesprek.push({ vraag: vragen[vraagIndex], antwoord: tekst });
+      const beantwoordeVraag = vragen[vraagIndex];
+      gesprek.push({ vraag: beantwoordeVraag, antwoord: tekst });
       vraagIndex++;
-      isSubmitting = false;
+      plaatsOptioneleVragen(tekst);
+      plaatsAlgemeneVraag();
 
+      const sid = sessieId;
+      const bedankje = kiesWillekeurigeTekst(BEDANK_TEKSTEN, laatsteBedankje);
+      laatsteBedankje = bedankje.index;
       if (vraagIndex < vragen.length) {
-        await stelVraag();
-      } else {
-        await rondGesprekAf();
+        isSubmitting = false;
+        await stelVraag(bedankje.tekst);
+        return;
       }
+      document.getElementById('questionText').innerText = bedankje.tekst;
+      setUIState('speaking', 'Dank u wel');
+      await spreek(bedankje.tekst);
+      if (sid !== sessieId) return;
+      isSubmitting = false;
+      await rondGesprekAf();
     }
 
     async function rondGesprekAf() {
@@ -353,17 +869,20 @@
         if (sid !== sessieId) return;
         toonAnalyse(analyse);
         vraagEl.innerText = 'Hartelijk dank voor uw tijd!';
-        setUIState('speaking', 'Gesprek afgerond');
-        await spreek('Hartelijk dank voor uw tijd!');
       } catch (err) {
         console.error(err);
         if (sid !== sessieId) return;
         vraagEl.innerText = 'Er ging iets mis bij het verwerken van uw antwoorden.';
       }
       if (sid !== sessieId) return;
-      setUIState('idle', 'Klaar voor de volgende bezoeker');
+      setUIState('idle', appMode === 'web' ? 'Gesprek afgerond' : 'Klaar voor de volgende bezoeker');
       document.getElementById('resetBtn').style.display = '';
-      setTimeout(() => { if (sid === sessieId) resetKiosk(); }, TERUG_NA_MS);
+      clearTimeout(samenvattingTimer);
+      if (appMode !== 'web') {
+        samenvattingTimer = setTimeout(() => {
+          if (sid === sessieId) resetKiosk();
+        }, SAMENVATTING_WEERGAVE_MS);
+      }
     }
 
     function toonAnalyse(analyse) {
@@ -373,14 +892,21 @@
 
     function resetKiosk() {
       sessieId++;
+      stopIdleToespraak();
+      clearTimeout(samenvattingTimer);
+      samenvattingTimer = null;
       wachtOpAntwoord = false;
       isSubmitting = false;
       clearTimeout(stilteTimer);
       if (recognition) recognition.abort();
-      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      annuleerSpraak();
       stopMicrofoonUI();
       gesprek = [];
       vragen = [];
+      optioneleVragen = {};
+      algemeneVraag = '';
+      algemeneGesteld = false;
+      gesteldeExtras = new Set();
       vraagIndex = 0;
       opgebouwdeTekst = '';
       document.getElementById('questionText').innerText = 'Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.';
@@ -388,10 +914,36 @@
       document.getElementById('answerControls').style.display = 'none';
       document.getElementById('analysisBox').style.display = 'none';
       document.getElementById('resetBtn').style.display = 'none';
-      document.getElementById('manualInput').value = '';
       document.getElementById('startBtn').style.display = '';
+      zetScherm('idle');
       setUIState('idle', 'Klaar voor start');
+      isIdleMode = true;
+      startIdleIconAnimation();
+      if (appMode !== 'web') {
+        idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
+      }
     }
+
+    async function laadConfig() {
+      try {
+        const res = await fetch('/config.json', { cache: 'no-store' });
+        if (res.ok) {
+          const cfg = await res.json();
+          const raw = String(cfg.mode || cfg.modus || 'zuil').trim().toLowerCase();
+          appMode = raw === 'web' ? 'web' : 'zuil';
+        }
+      } catch (e) {
+        console.warn('config.json kon niet worden geladen, standaard zuil-modus actief:', e);
+      }
+      document.body.dataset.mode = appMode;
+      document.getElementById('resetBtn').innerText = appMode === 'web' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
+      startIdleIconAnimation();
+      if (appMode !== 'web') {
+        idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
+      }
+    }
+
+    laadConfig();
   </script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 import os
 import json
+import shutil
+import subprocess
 import threading
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -7,6 +9,7 @@ from pathlib import Path
 from typing import List, Literal
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
@@ -40,12 +43,72 @@ BESCHIKBARE_MODELLEN = [
     "gemini-3.8-flash",
 ]
 
+APP_URL = "http://127.0.0.1:8000"
+BASIS_MAP = Path(__file__).resolve().parent
+CONFIG_PAD = BASIS_MAP / "config.json"
+
+def lees_config() -> dict:
+    """Leest config.json en geeft standaard {'mode': 'zuil'} terug als het bestand ontbreekt of ongeldig is."""
+    try:
+        data = json.loads(CONFIG_PAD.read_text(encoding="utf-8"))
+        raw_mode = str(data.get("mode") or data.get("modus") or "zuil").strip().lower()
+        mode = "web" if raw_mode == "web" else "zuil"
+        return {"mode": mode}
+    except (OSError, json.JSONDecodeError):
+        return {"mode": "zuil"}
+
+def start_edge_kiosk() -> None:
+    edge = shutil.which("msedge")
+    if not edge:
+        program_files = [
+            Path(path)
+            for path in (
+                os.environ.get("PROGRAMFILES(X86)"),
+                os.environ.get("PROGRAMFILES"),
+                os.environ.get("LOCALAPPDATA"),
+            )
+            if path
+        ]
+        edge_paden = [
+            map_dir / "Microsoft" / "Edge" / "Application" / "msedge.exe"
+            for map_dir in program_files
+        ]
+        edge = next((str(pad) for pad in edge_paden if pad.is_file()), None)
+
+    if not edge:
+        print("Edge niet gevonden. Start Edge handmatig om de informatiezuil te openen.")
+        return
+
+    try:
+        subprocess.Popen(
+            [
+                edge,
+                "--kiosk",
+                APP_URL,
+                "--edge-kiosk-type=fullscreen",
+                "--no-first-run",
+                "--autoplay-policy=no-user-gesture-required",
+            ],
+            close_fds=True,
+        )
+        print(f"Edge gestart in kioskmodus: {APP_URL}")
+    except OSError as error:
+        print(f"Edge kon niet in kioskmodus worden gestart: {error}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if API_KEY.startswith("PLAK_HIER"):
         print("\n❗ Geen GEMINI_API_KEY gevonden: zet hem in .env of als omgevingsvariabele.")
-    print("\n🚀 Server is opgestart! Open http://127.0.0.1:8000 in Chrome of Edge.")
-    print("👉 Klik op het scherm op 'Start Gesprek' en kijk hier mee in de terminal.\n")
+    cfg = lees_config()
+    if cfg["mode"] == "web":
+        print(f"\n🌐 Server is opgestart in WEB-modus! Open {APP_URL} in je browser.")
+        print("👉 Pas 'config.json' aan naar {\"mode\": \"zuil\"} voor de informatiezuil-modus.\n")
+    else:
+        print(f"\n🚀 Server is opgestart in ZUIL-modus! De informatiezuil opent op {APP_URL}.")
+        print("👉 Klik op het scherm op 'Start Gesprek' en kijk hier mee in de terminal.\n")
+        kiosk_timer = threading.Timer(2, start_edge_kiosk)
+        kiosk_timer.daemon = True
+        kiosk_timer.start()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -93,10 +156,10 @@ class BezoekerAnalyse(BaseModel):
 # ==========================================
 # 2. BESTANDEN EN VRAGEN
 # ==========================================
-BASIS_MAP = Path(__file__).resolve().parent
 VRAGEN_PAD = BASIS_MAP / "vragen.txt"
 RESULTATEN_PAD = BASIS_MAP / "resultaten.json"
 INDEX_PAD = BASIS_MAP / "index.html"
+app.mount("/static", StaticFiles(directory=BASIS_MAP / "static"), name="static")
 
 STANDAARD_VRAGEN = [
     "Is dit uw eerste bezoek aan ons?",
@@ -146,6 +209,18 @@ SYSTEEM_INSTRUCTIE = (
 @app.get("/", response_class=HTMLResponse)
 def index():
     return HTMLResponse(INDEX_PAD.read_text(encoding="utf-8"))
+
+@app.get("/config.json")
+def get_config():
+    return lees_config()
+
+@app.get("/vragen.txt")
+def get_vragen_txt():
+    try:
+        inhoud = VRAGEN_PAD.read_text(encoding="utf-8")
+    except OSError:
+        inhoud = "\n".join(STANDAARD_VRAGEN)
+    return Response(content=inhoud, media_type="text/plain; charset=utf-8")
 
 @app.get("/favicon.ico")
 def favicon():
