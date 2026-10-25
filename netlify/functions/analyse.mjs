@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 const BESCHIKBARE_MODELLEN = [
   "gemini-3.5-flash",
   "gemini-3.6-flash",
@@ -52,6 +55,125 @@ const RESPONSE_SCHEMA = {
   ],
 };
 
+function leesConfigBestand() {
+  try {
+    const configPad = path.resolve(process.cwd(), "config.json");
+    return JSON.parse(fs.readFileSync(configPad, "utf-8"));
+  } catch {
+    return {};
+  }
+}
+
+function leesInstellingen() {
+  const cfg = leesConfigBestand();
+
+  const cfgApiKey = String(cfg.GEMINI_API_KEY || cfg.gemini_api_key || "").trim();
+  const apiKey =
+    (cfgApiKey && !cfgApiKey.startsWith("PLAK_HIER") ? cfgApiKey : "") ||
+    process.env.GEMINI_API_KEY ||
+    "";
+
+  const cfgGithubToken = String(cfg.GITHUB_TOKEN || cfg.github_token || "").trim();
+  const githubToken =
+    process.env.GITHUB_TOKEN ||
+    (cfgGithubToken && !cfgGithubToken.startsWith("PLAK_HIER") ? cfgGithubToken : "");
+
+  const githubRepo =
+    process.env.GITHUB_REPO ||
+    String(cfg.GITHUB_REPO || "museum-20e-eeuw/Interview-bot").trim();
+
+  const githubBranch =
+    process.env.GITHUB_BRANCH ||
+    String(cfg.GITHUB_BRANCH || "main").trim();
+
+  const githubFilePath =
+    process.env.GITHUB_FILE_PATH ||
+    String(cfg.GITHUB_FILE_PATH || "resultaten.json").trim();
+
+  return {
+    apiKey,
+    githubToken,
+    githubRepo,
+    githubBranch,
+    githubFilePath,
+  };
+}
+
+async function slaOpInGitHub(record, { githubToken, githubRepo, githubBranch, githubFilePath }) {
+  if (!githubToken || !githubRepo) {
+    console.warn("Geen GITHUB_TOKEN of GITHUB_REPO ingesteld; opslaan in GitHub overgeslagen.");
+    return false;
+  }
+
+  const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${githubFilePath}`;
+  const headers = {
+    Authorization: `Bearer ${githubToken}`,
+    Accept: "application/vnd.github+json",
+    "Content-Type": "application/json",
+    "User-Agent": "Interview-bot-Netlify",
+  };
+
+  for (let poging = 0; poging < 3; poging++) {
+    let bestaandeData = [];
+    let sha = undefined;
+
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(githubBranch)}`, {
+      method: "GET",
+      headers,
+    });
+
+    if (getRes.ok) {
+      const fileInfo = await getRes.json();
+      sha = fileInfo.sha;
+      if (fileInfo.content) {
+        try {
+          const decoded = Buffer.from(fileInfo.content, "base64").toString("utf-8");
+          const parsed = JSON.parse(decoded);
+          if (Array.isArray(parsed)) bestaandeData = parsed;
+        } catch {
+          bestaandeData = [];
+        }
+      }
+    } else if (getRes.status !== 404) {
+      const errText = await getRes.text();
+      console.error(`GitHub GET mislukt (${getRes.status}):`, errText);
+      return false;
+    }
+
+    bestaandeData.push(record);
+    const nieuwJson = JSON.stringify(bestaandeData, null, 2);
+    const nieuwBase64 = Buffer.from(nieuwJson, "utf-8").toString("base64");
+
+    const putBody = {
+      message: `Nieuw interview-resultaat opgeslagen (${record.tijdstip}) [skip ci]`,
+      content: nieuwBase64,
+      branch: githubBranch,
+    };
+    if (sha) putBody.sha = sha;
+
+    const putRes = await fetch(apiUrl, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(putBody),
+    });
+
+    if (putRes.ok) {
+      return true;
+    }
+
+    // Bij 409 Conflict (gelijktijdige schrijfactie) direct opnieuw proberen met nieuwe SHA
+    if (putRes.status === 409) {
+      continue;
+    }
+
+    const putErr = await putRes.text();
+    console.error(`GitHub PUT mislukt (${putRes.status}):`, putErr);
+    return false;
+  }
+
+  return false;
+}
+
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
@@ -61,17 +183,7 @@ export const handler = async (event) => {
     };
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-      body: JSON.stringify({
-        detail:
-          "Geen GEMINI_API_KEY ingesteld in de Netlify Environment Variables.",
-      }),
-    };
-  }
+  const instellingen = leesInstellingen();
 
   let body;
   try {
@@ -84,7 +196,13 @@ export const handler = async (event) => {
     };
   }
 
-  const gesprek = Array.isArray(body.gesprek) ? body.gesprek.slice(0, 20) : [];
+  const gesprek = Array.isArray(body.gesprek)
+    ? body.gesprek.slice(0, 20).map((b) => ({
+        vraag: String(b.vraag || "").slice(0, 500),
+        antwoord: String(b.antwoord || "").slice(0, 2000),
+      }))
+    : [];
+
   if (gesprek.length === 0) {
     return {
       statusCode: 422,
@@ -94,75 +212,75 @@ export const handler = async (event) => {
   }
 
   const transcript = gesprek
-    .map(
-      (b) =>
-        `Vraag: ${String(b.vraag || "").slice(0, 500)}\nAntwoord: ${String(b.antwoord || "").slice(0, 2000)}`
-    )
+    .map((b) => `Vraag: ${b.vraag}\nAntwoord: ${b.antwoord}`)
     .join("\n\n");
 
-  const payload = {
-    systemInstruction: {
-      parts: [{ text: SYSTEEM_INSTRUCTIE }],
-    },
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: transcript }],
+  let analyse = null;
+
+  if (instellingen.apiKey) {
+    const payload = {
+      systemInstruction: {
+        parts: [{ text: SYSTEEM_INSTRUCTIE }],
       },
-    ],
-    generationConfig: {
-      temperature: 0,
-      responseMimeType: "application/json",
-      responseSchema: RESPONSE_SCHEMA,
-    },
-  };
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: transcript }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0,
+        responseMimeType: "application/json",
+        responseSchema: RESPONSE_SCHEMA,
+      },
+    };
 
-  let laatsteFout = null;
-  for (const modelNaam of BESCHIKBARE_MODELLEN) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelNaam}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
+    for (const modelNaam of BESCHIKBARE_MODELLEN) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelNaam}:generateContent?key=${encodeURIComponent(instellingen.apiKey)}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+        clearTimeout(timer);
 
-      if (!res.ok) {
-        laatsteFout = new Error(`Model ${modelNaam} gaf HTTP ${res.status}`);
+        if (!res.ok) continue;
+
+        const data = await res.json();
+        const tekst = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!tekst) continue;
+
+        analyse = JSON.parse(tekst);
+        break;
+      } catch {
+        clearTimeout(timer);
         continue;
       }
-
-      const data = await res.json();
-      const tekst = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!tekst) {
-        laatsteFout = new Error(`Leeg antwoord van ${modelNaam}`);
-        continue;
-      }
-
-      const analyse = JSON.parse(tekst);
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json; charset=utf-8" },
-        body: JSON.stringify(analyse),
-      };
-    } catch (err) {
-      clearTimeout(timer);
-      laatsteFout = err;
-      continue;
     }
   }
 
-  console.error("Analyse mislukt:", laatsteFout);
+  const tijdstip = new Date().toISOString().slice(0, 19);
+  const record = {
+    tijdstip,
+    gesprek,
+    onbewerkte_tekst: transcript,
+    analyse,
+  };
+
+  const githubOpgeslagen = await slaOpInGitHub(record, instellingen);
+
   return {
-    statusCode: 502,
+    statusCode: 200,
     headers: { "Content-Type": "application/json; charset=utf-8" },
     body: JSON.stringify({
-      detail: "De analyse is mislukt. Probeer het later opnieuw.",
+      opgeslagen: true,
+      github_opgeslagen: githubOpgeslagen,
+      onbewerkte_tekst: transcript,
+      analyse,
     }),
   };
 };
-

@@ -423,59 +423,109 @@
       document.getElementById('analogMeter').setAttribute('aria-valuenow', String(Math.round(waarde * 10)));
     }
 
+    let volumeSource = null;
+    let spraakPulsDoel = 0;
+    let vermijdDubbeleMicStream = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+    function pulsMeterNaald(sterkte = 0.65) {
+      spraakPulsDoel = Math.max(spraakPulsDoel, sterkte);
+    }
+
     function startVolumeMeter() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
       const requestId = ++volumeMeterRequestId;
       const status = document.getElementById('volumeMeterStatus');
       status.innerText = '';
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        if (requestId !== volumeMeterRequestId || !isListening) {
-          stream.getTracks().forEach(track => track.stop());
-          return;
-        }
-        volumeStream = stream;
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) {
-          stream.getTracks().forEach(track => track.stop());
-          volumeStream = null;
-          status.innerText = 'Volumemeter niet beschikbaar';
-          return;
-        }
-        volumeAudioContext = new AudioContextClass();
-        const analyser = volumeAudioContext.createAnalyser();
-        analyser.fftSize = 1024;
-        volumeAudioContext.createMediaStreamSource(stream).connect(analyser);
-        const samples = new Float32Array(analyser.fftSize);
-        let naald = 0;
-        const measure = () => {
-          if (requestId !== volumeMeterRequestId) return;
+      houdAudioWakker();
+
+      let analyser = null;
+      let samples = null;
+      let naald = 0;
+
+      const measure = () => {
+        if (requestId !== volumeMeterRequestId) return;
+        let doel = 0;
+        if (analyser && samples) {
           analyser.getFloatTimeDomainData(samples);
           let totaal = 0;
           for (const sample of samples) totaal += sample * sample;
           const db = 20 * Math.log10(Math.max(Math.sqrt(totaal / samples.length), 1e-5));
-          const doel = Math.min(1, Math.max(0, (db + 50) / 40)); // -50 dB is nul, -10 dB is vol uitslag
-          // Een echte naald reageert snel omhoog en zakt langzaam terug.
-          naald += (doel - naald) * (doel > naald ? 0.35 : 0.08);
-          zetMeterNaald(naald);
-          volumeAnimationFrame = requestAnimationFrame(measure);
-        };
-        measure();
-      }).catch(error => {
-        if (requestId !== volumeMeterRequestId) return;
-        console.warn('Volumemeter kon niet starten:', error);
-        ruimVolumeMeterOp();
-        status.innerText = 'Volumemeter niet beschikbaar';
-      });
+          doel = Math.min(1, Math.max(0, (db + 50) / 40)); // -50 dB is nul, -10 dB is vol uitslag
+        }
+        if (spraakPulsDoel > 0.01) {
+          doel = Math.max(doel, spraakPulsDoel);
+          spraakPulsDoel *= 0.88;
+        } else {
+          spraakPulsDoel = 0;
+        }
+        // Een echte naald reageert snel omhoog en zakt langzaam terug.
+        naald += (doel - naald) * (doel > naald ? 0.35 : 0.08);
+        zetMeterNaald(naald);
+        volumeAnimationFrame = requestAnimationFrame(measure);
+      };
+      measure();
+
+      // Op mobiele apparaten kan getUserMedia de microfoon wegnemen van SpeechRecognition;
+      // daar gebruiken we de spraak-events om de naald aan te sturen.
+      if (vermijdDubbeleMicStream || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+      const koppelStream = (stream) => {
+        if (requestId !== volumeMeterRequestId || (!isListening && !wachtOpAntwoord)) {
+          if (stream !== gedeeldeMicStream) stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+        volumeStream = stream;
+        if (!wakkerContext) houdAudioWakker();
+        if (!wakkerContext) {
+          status.innerText = 'Volumemeter niet beschikbaar';
+          return;
+        }
+        if (wakkerContext.state === 'suspended') {
+          wakkerContext.resume().catch(() => {});
+        }
+        try {
+          analyser = wakkerContext.createAnalyser();
+          analyser.fftSize = 1024;
+          samples = new Float32Array(analyser.fftSize);
+          volumeSource = wakkerContext.createMediaStreamSource(stream);
+          volumeSource.connect(analyser);
+        } catch (err) {
+          console.warn('Analyser kon niet worden gekoppeld:', err);
+        }
+      };
+
+      if (gedeeldeMicStream && gedeeldeMicStream.active) {
+        koppelStream(gedeeldeMicStream);
+      } else {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          gedeeldeMicStream = stream;
+          koppelStream(stream);
+        }).catch(error => {
+          if (requestId !== volumeMeterRequestId) return;
+          console.warn('Volumemeter kon niet starten:', error);
+        });
+      }
     }
 
     function ruimVolumeMeterOp() {
       if (volumeAnimationFrame !== null) cancelAnimationFrame(volumeAnimationFrame);
       volumeAnimationFrame = null;
-      if (volumeStream) volumeStream.getTracks().forEach(track => track.stop());
+      if (volumeSource) {
+        try { volumeSource.disconnect(); } catch (e) {}
+        volumeSource = null;
+      }
+      if (volumeStream && volumeStream !== gedeeldeMicStream) {
+        volumeStream.getTracks().forEach(track => track.stop());
+      }
       volumeStream = null;
-      if (volumeAudioContext) volumeAudioContext.close().catch(error => console.warn('AudioContext kon niet sluiten:', error));
-      volumeAudioContext = null;
+      spraakPulsDoel = 0;
       zetMeterNaald(0);
+    }
+
+    function sluitGedeeldeMicStream() {
+      if (gedeeldeMicStream) {
+        gedeeldeMicStream.getTracks().forEach(track => track.stop());
+        gedeeldeMicStream = null;
+      }
     }
 
     function stopVolumeMeter() {
@@ -533,9 +583,11 @@
     let isSubmitting = false; // Voorkomt dubbel versturen
     let recognition = null;
     let opgebouwdeTekst = '';
+    let eerdereSegmenten = '';
+    let huidigeSessieTekst = '';
     let stilteTimer = null;
     let volumeStream = null;
-    let volumeAudioContext = null;
+    let gedeeldeMicStream = null;
     let volumeAnimationFrame = null;
     let volumeMeterRequestId = 0;
 
@@ -544,11 +596,11 @@
       recognition = new SpeechRecognition();
       recognition.lang = 'nl-NL';
       recognition.interimResults = true;
-      recognition.continuous = true; // Blijf luisteren totdat wij zelf beslissen dat het klaar is
+      recognition.continuous = !vermijdDubbeleMicStream; // Op mobiel werkt continuous=false met auto-herstart betrouwbaarder
 
       recognition.onstart = () => {
         isListening = true;
-        opgebouwdeTekst = '';
+        huidigeSessieTekst = '';
         setUIState('listening', 'Aan het luisteren...');
         startVolumeMeter();
         const btn = document.getElementById('micBtn');
@@ -556,13 +608,18 @@
         btn.classList.add('active');
       };
 
+      recognition.onsoundstart = () => pulsMeterNaald(0.5);
+      recognition.onspeechstart = () => pulsMeterNaald(0.65);
+
       recognition.onresult = (event) => {
         if (!wachtOpAntwoord) return; // Late resultaten na het versturen mogen geen tweede antwoord starten
+        pulsMeterNaald(0.75);
         let huidigeTekst = '';
         for (let i = 0; i < event.results.length; ++i) {
           huidigeTekst += event.results[i][0].transcript;
         }
-        opgebouwdeTekst = huidigeTekst.trim();
+        huidigeSessieTekst = huidigeTekst.trim();
+        opgebouwdeTekst = [eerdereSegmenten, huidigeSessieTekst].filter(Boolean).join(' ').trim();
         
         if (opgebouwdeTekst) {
           document.getElementById('transcriptBox').innerText = `"${opgebouwdeTekst}"`;
@@ -579,24 +636,42 @@
 
       recognition.onerror = (e) => {
         console.warn("Microfoon melding:", e.error);
-        if (e.error !== 'no-speech') {
-          wachtOpAntwoord = false;
-          stopMicrofoonUI();
-          setUIState('idle', 'Microfoon gepauzeerd. Klik op de knop om te spreken.');
+        if (e.error === 'no-speech' || e.error === 'aborted') {
+          return;
         }
+        if (e.error === 'audio-capture' && !vermijdDubbeleMicStream) {
+          // Als het besturingssysteem geen dubbele microfoon-stream toestaat, sluit de meter-stream en herstart spraakherkenning
+          vermijdDubbeleMicStream = true;
+          sluitGedeeldeMicStream();
+          ruimVolumeMeterOp();
+          return;
+        }
+        wachtOpAntwoord = false;
+        stopMicrofoonUI();
+        setUIState('idle', 'Microfoon gepauzeerd. Klik op de knop om te spreken.');
       };
 
       recognition.onend = () => {
         const wasLuisterend = isListening;
-        stopMicrofoonUI();
-        // Sluit de browser zelf de microfoon af terwijl we nog op een antwoord wachten, dan versturen we wat er is of luisteren we opnieuw.
+        if (huidigeSessieTekst) {
+          eerdereSegmenten = [eerdereSegmenten, huidigeSessieTekst].filter(Boolean).join(' ').trim();
+          huidigeSessieTekst = '';
+        }
+        // Sluit de browser zelf de microfoon af terwijl we nog op een antwoord wachten, dan herstarten we het luisteren
         if (wasLuisterend && wachtOpAntwoord && !isSubmitting) {
-          if (opgebouwdeTekst) {
+          if (opgebouwdeTekst && !stilteTimer) {
+            stopMicrofoonUI();
             rondSpraakbeurtAf();
           } else {
-            try { recognition.start(); } catch (e) { console.warn(e); }
+            try {
+              recognition.start();
+              return;
+            } catch (e) {
+              console.warn(e);
+            }
           }
         }
+        stopMicrofoonUI();
       };
     } else {
       document.getElementById('micBtn').style.display = 'none';
@@ -616,26 +691,51 @@
       btn.classList.remove('active');
     }
 
-    function startMicrofoon() {
-      if (!recognition || isListening) return;
+    function startMicrofoon(resetTekst = false) {
+      houdAudioWakker();
+      if (resetTekst) {
+        opgebouwdeTekst = '';
+        eerdereSegmenten = '';
+        huidigeSessieTekst = '';
+      }
       wachtOpAntwoord = true;
-      opgebouwdeTekst = '';
-      try { recognition.start(); } catch (e) { console.warn('Microfoon kon niet starten:', e); }
+      startVolumeMeter();
+      if (!recognition) {
+        document.getElementById('volumeMeterStatus').innerText = 'Spraakherkenning wordt niet ondersteund in deze browser (gebruik Chrome, Edge of Safari).';
+        return;
+      }
+      if (isListening) return;
+      try {
+        recognition.start();
+      } catch (e) {
+        console.warn('Microfoon kon niet starten:', e);
+      }
     }
 
     function toggleListening() {
+      houdAudioWakker();
       if (isListening) {
-        rondSpraakbeurtAf();
+        if (opgebouwdeTekst.trim()) {
+          rondSpraakbeurtAf();
+        } else {
+          // Gebruiker klikt op de knop terwijl er nog niets is gehoord: houd de microfoon actief
+          startVolumeMeter();
+          setUIState('listening', 'Aan het luisteren... Spreek uw antwoord in');
+        }
       } else {
-        startMicrofoon();
+        startMicrofoon(false);
       }
     }
 
     function rondSpraakbeurtAf() {
       if (isSubmitting) return;
       clearTimeout(stilteTimer);
+      stilteTimer = null;
       wachtOpAntwoord = false;
-      if (recognition) recognition.stop();
+      if (recognition) {
+        try { recognition.stop(); } catch (e) {}
+      }
+      stopMicrofoonUI();
       const tekst = opgebouwdeTekst.trim();
       if (!tekst) {
         setUIState('idle', 'Ik heb niets gehoord. Klik op de knop om te spreken.');
@@ -769,6 +869,21 @@
         .filter(r => r.length > 0 && !r.startsWith('#'));
     }
 
+    async function bereidMicrofoonVoor() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+      try {
+        if (gedeeldeMicStream && gedeeldeMicStream.active) return;
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (vermijdDubbeleMicStream) {
+          stream.getTracks().forEach(track => track.stop());
+        } else {
+          gedeeldeMicStream = stream;
+        }
+      } catch (err) {
+        console.warn('Microfoontoestemming niet direct verleend:', err);
+      }
+    }
+
     async function startInterview() {
       const sid = ++sessieId;
       stopIdleToespraak();
@@ -777,6 +892,8 @@
       zetScherm('gesprek');
       document.getElementById('startBtn').style.display = 'none';
       setUIState('thinking', 'Vragen laden...');
+      await bereidMicrofoonVoor();
+      if (sid !== sessieId) return;
       try {
         const vraagregels = await haalVragenOp();
         const geladen = splitsVragen(vraagregels);
@@ -822,7 +939,7 @@
       document.getElementById('answerControls').style.display = '';
       zetScherm('antwoord');
       setUIState('idle', 'Uw beurt: spreek uw antwoord');
-      startMicrofoon();
+      startMicrofoon(true);
     }
 
     async function verstuurAntwoord(tekst) {
@@ -854,27 +971,22 @@
 
     async function rondGesprekAf() {
       const sid = sessieId;
+      sluitGedeeldeMicStream();
       const vraagEl = document.getElementById('questionText');
       document.getElementById('transcriptBox').style.display = 'none';
       vraagEl.innerText = 'Bedankt voor uw antwoorden! Een moment geduld...';
-      setUIState('thinking', 'Antwoorden worden verwerkt...');
+      setUIState('thinking', 'Antwoorden worden opgeslagen...');
       try {
-        const res = await fetch('/api/analyse', {
+        await fetch('/api/analyse', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ gesprek })
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const analyse = await res.json();
-        if (sid !== sessieId) return;
-        toonAnalyse(analyse);
-        vraagEl.innerText = 'Hartelijk dank voor uw tijd!';
       } catch (err) {
         console.error(err);
-        if (sid !== sessieId) return;
-        vraagEl.innerText = 'Er ging iets mis bij het verwerken van uw antwoorden.';
       }
       if (sid !== sessieId) return;
+      vraagEl.innerText = 'Hartelijk dank voor uw tijd!';
       setUIState('idle', appMode === 'web' ? 'Gesprek afgerond' : 'Klaar voor de volgende bezoeker');
       document.getElementById('resetBtn').style.display = '';
       clearTimeout(samenvattingTimer);
@@ -901,6 +1013,7 @@
       if (recognition) recognition.abort();
       annuleerSpraak();
       stopMicrofoonUI();
+      sluitGedeeldeMicStream();
       gesprek = [];
       vragen = [];
       optioneleVragen = {};
@@ -909,6 +1022,8 @@
       gesteldeExtras = new Set();
       vraagIndex = 0;
       opgebouwdeTekst = '';
+      eerdereSegmenten = '';
+      huidigeSessieTekst = '';
       document.getElementById('questionText').innerText = 'Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.';
       document.getElementById('transcriptBox').style.display = 'none';
       document.getElementById('answerControls').style.display = 'none';

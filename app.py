@@ -21,10 +21,31 @@ try:
 except ImportError:
     pass
 
+APP_URL = "http://127.0.0.1:8000"
+BASIS_MAP = Path(__file__).resolve().parent
+CONFIG_PAD = BASIS_MAP / "config.json"
+
+def lees_config() -> dict:
+    """Leest config.json (mode en GEMINI_API_KEY) met fallback op .env / omgevingsvariabelen."""
+    mode = "zuil"
+    api_key = ""
+    try:
+        data = json.loads(CONFIG_PAD.read_text(encoding="utf-8"))
+        raw_mode = str(data.get("mode") or data.get("modus") or "zuil").strip().lower()
+        mode = "web" if raw_mode == "web" else "zuil"
+        api_key = str(data.get("GEMINI_API_KEY") or data.get("gemini_api_key") or "").strip()
+    except (OSError, json.JSONDecodeError):
+        pass
+
+    if not api_key:
+        api_key = os.environ.get("GEMINI_API_KEY", "PLAK_HIER_JE_ECHTE_API_KEY")
+
+    return {"mode": mode, "GEMINI_API_KEY": api_key}
+
 # ==========================================
-# VUL HIERONDER JE API KEY IN (als je geen .env gebruikt)
+# API KEY UIT CONFIG.JSON (met fallback op .env)
 # ==========================================
-API_KEY = os.environ.get("GEMINI_API_KEY", "PLAK_HIER_JE_ECHTE_API_KEY")
+API_KEY = lees_config()["GEMINI_API_KEY"]
 
 # BELANGRIJK: Zet op de achtergrond het eindeloos wachten (retries) van de SDK uit,
 # zodat onze eigen fallback direct binnen een fractie van een seconde doorschakelt!
@@ -42,20 +63,6 @@ BESCHIKBARE_MODELLEN = [
     "gemini-3.1-flash-lite",
     "gemini-3.8-flash",
 ]
-
-APP_URL = "http://127.0.0.1:8000"
-BASIS_MAP = Path(__file__).resolve().parent
-CONFIG_PAD = BASIS_MAP / "config.json"
-
-def lees_config() -> dict:
-    """Leest config.json en geeft standaard {'mode': 'zuil'} terug als het bestand ontbreekt of ongeldig is."""
-    try:
-        data = json.loads(CONFIG_PAD.read_text(encoding="utf-8"))
-        raw_mode = str(data.get("mode") or data.get("modus") or "zuil").strip().lower()
-        mode = "web" if raw_mode == "web" else "zuil"
-        return {"mode": mode}
-    except (OSError, json.JSONDecodeError):
-        return {"mode": "zuil"}
 
 def start_edge_kiosk() -> None:
     edge = shutil.which("msedge")
@@ -97,9 +104,9 @@ def start_edge_kiosk() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if API_KEY.startswith("PLAK_HIER"):
-        print("\n❗ Geen GEMINI_API_KEY gevonden: zet hem in .env of als omgevingsvariabele.")
     cfg = lees_config()
+    if cfg["GEMINI_API_KEY"].startswith("PLAK_HIER"):
+        print("\n❗ Geen GEMINI_API_KEY gevonden: zet hem in config.json (of .env / omgevingsvariabele).")
     if cfg["mode"] == "web":
         print(f"\n🌐 Server is opgestart in WEB-modus! Open {APP_URL} in je browser.")
         print("👉 Pas 'config.json' aan naar {\"mode\": \"zuil\"} voor de informatiezuil-modus.\n")
@@ -115,6 +122,12 @@ app = FastAPI(lifespan=lifespan)
 
 def genereer_met_fallback(contents, config: types.GenerateContentConfig):
     """Probeert de modellen één voor één en logt direct in de terminal."""
+    global API_KEY, client
+    huidige_key = lees_config()["GEMINI_API_KEY"]
+    if huidige_key != API_KEY:
+        API_KEY = huidige_key
+        client = genai.Client(api_key=API_KEY, http_options={'timeout': 10000})
+
     laatste_fout = None
     for model_naam in BESCHIKBARE_MODELLEN:
         try:
@@ -179,8 +192,13 @@ def lees_vragen() -> List[str]:
     vragen = [r.strip() for r in regels if r.strip() and not r.strip().startswith("#")]
     return vragen or STANDAARD_VRAGEN
 
-def sla_resultaat_op(gesprek: List[dict], analyse: dict) -> None:
-    record = {"tijdstip": datetime.now().isoformat(timespec="seconds"), "gesprek": gesprek, "analyse": analyse}
+def sla_resultaat_op(gesprek: List[dict], onbewerkte_tekst: str, analyse: dict | None) -> None:
+    record = {
+        "tijdstip": datetime.now().isoformat(timespec="seconds"),
+        "gesprek": gesprek,
+        "onbewerkte_tekst": onbewerkte_tekst,
+        "analyse": analyse,
+    }
     with _opslag_lock:
         try:
             data = json.loads(RESULTATEN_PAD.read_text(encoding="utf-8"))
@@ -212,7 +230,7 @@ def index():
 
 @app.get("/config.json")
 def get_config():
-    return lees_config()
+    return {"mode": lees_config()["mode"]}
 
 @app.get("/vragen.txt")
 def get_vragen_txt():
@@ -233,23 +251,24 @@ def api_vragen():
 @app.post("/api/analyse")
 def api_analyse(verzoek: AnalyseVerzoek):
     transcript = "\n\n".join(f"Vraag: {b.vraag}\nAntwoord: {b.antwoord}" for b in verzoek.gesprek)
+    gesprek_data = [b.model_dump() for b in verzoek.gesprek]
     config = types.GenerateContentConfig(
         system_instruction=SYSTEEM_INSTRUCTIE,
         response_mime_type="application/json",
         response_schema=BezoekerAnalyse,
         temperature=0,
     )
+    resultaat = None
     try:
         res = genereer_met_fallback(transcript, config)
         analyse = res.parsed if isinstance(res.parsed, BezoekerAnalyse) else BezoekerAnalyse.model_validate_json(res.text)
+        resultaat = analyse.model_dump()
     except Exception as e:
-        print(f"❌ Analyse mislukt: {e}")
-        raise HTTPException(status_code=502, detail="De analyse is mislukt. Probeer het later opnieuw.")
+        print(f"⚠️ Analyse mislukt (ongeanalyseerde tekst wordt wel opgeslagen): {e}")
 
-    resultaat = analyse.model_dump()
-    sla_resultaat_op([b.model_dump() for b in verzoek.gesprek], resultaat)
+    sla_resultaat_op(gesprek_data, transcript, resultaat)
     print(f"💾 Resultaat opgeslagen in {RESULTATEN_PAD.name}")
-    return resultaat
+    return {"opgeslagen": True, "onbewerkte_tekst": transcript, "analyse": resultaat}
 
 if __name__ == "__main__":
     import uvicorn
