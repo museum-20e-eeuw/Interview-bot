@@ -79,58 +79,82 @@
     .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; font-size: 1.05rem; }
     .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; background: #334155; font-weight: bold; }
 
-    /* ==========================================
-       WEB / MOBIELE TELEFOON MODUS (config.json: "mode": "web")
-       ========================================== */
-    body[data-mode="web"] .kiosk-card {
-      max-width: 390px;
+    .sound-notice {
+      display: none;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      color: #fde68a;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.65rem 1rem;
+      border-radius: 12px;
+      margin: 0 auto 1rem;
       width: 100%;
-      padding: 2.2rem 1.4rem 2rem;
+    }
+    body[data-mode="mobiel"] .kiosk-card[data-scherm="idle"] .sound-notice {
+      display: block;
+    }
+
+    /* ==========================================
+       MOBIELE TELEFOON MODUS (automatisch bij mobiel scherm)
+       ========================================== */
+    body[data-mode="mobiel"] {
+      padding: 0;
+      background: #1e293b;
+    }
+    body[data-mode="mobiel"] .kiosk-card {
+      max-width: 100%;
+      width: 100%;
+      min-height: 100dvh;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      padding: 1.5rem 1.25rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
-    body[data-mode="web"] .idle-icon {
+    body[data-mode="mobiel"] .idle-icon {
       width: 96px;
       height: 96px;
       margin-bottom: 1.2rem;
     }
-    body[data-mode="web"] .status-orb {
+    body[data-mode="mobiel"] .status-orb {
       width: 72px;
       height: 72px;
       margin-bottom: 0.8rem;
     }
-    body[data-mode="web"] .status-label {
+    body[data-mode="mobiel"] .status-label {
       font-size: 0.85rem;
       letter-spacing: 1.5px;
       margin-bottom: 0.5rem;
     }
-    body[data-mode="web"] .question-text {
+    body[data-mode="mobiel"] .question-text {
       font-size: 1.25rem;
       line-height: 1.4;
       min-height: 3.5rem;
       margin-bottom: 1rem;
       width: 100%;
     }
-    body[data-mode="web"] .transcript-box {
+    body[data-mode="mobiel"] .transcript-box {
       font-size: 1.05rem;
       padding: 0.65rem 0.9rem;
       width: 100%;
       margin-bottom: 1rem;
     }
-    body[data-mode="web"] .volume-meter {
+    body[data-mode="mobiel"] .volume-meter {
       width: 100%;
       margin-bottom: 0.8rem;
     }
-    body[data-mode="web"] .analog-meter {
+    body[data-mode="mobiel"] .analog-meter {
       width: min(210px, 78%);
     }
-    body[data-mode="web"] #controls,
-    body[data-mode="web"] #answerControls {
+    body[data-mode="mobiel"] #controls,
+    body[data-mode="mobiel"] #answerControls {
       width: 100%;
     }
-    body[data-mode="web"] .btn {
+    body[data-mode="mobiel"] .btn {
       width: 100%;
       max-width: 310px;
       padding: 0.95rem 1.4rem;
@@ -138,80 +162,19 @@
       margin: 0.35rem auto;
       display: block;
     }
-    body[data-mode="web"] .btn.secondary {
+    body[data-mode="mobiel"] .btn.secondary {
       font-size: 0.95rem;
       padding: 0.75rem 1.2rem;
     }
-    body[data-mode="web"] .analysis-box {
+    body[data-mode="mobiel"] .analysis-box {
       margin-top: 1.2rem;
       padding: 1rem 1.1rem;
       width: 100%;
       font-size: 0.95rem;
     }
-    body[data-mode="web"] .analysis-box h3 {
+    body[data-mode="mobiel"] .analysis-box h3 {
       font-size: 1.05rem;
       margin-bottom: 0.5rem;
-    }
-
-    /* Op desktop/tablet schermen in web-modus: toon een realistisch telefoon-frame */
-    @media (min-width: 500px) {
-      body[data-mode="web"] {
-        padding: 1.5rem;
-        background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%);
-      }
-      body[data-mode="web"] .kiosk-card {
-        min-height: min(760px, 90dvh);
-        max-height: 92dvh;
-        overflow-y: auto;
-        border-radius: 44px;
-        border: 10px solid #090d16;
-        box-shadow:
-          0 0 0 2px #334155,
-          0 30px 60px -15px rgba(0, 0, 0, 0.75);
-        padding-top: 3rem;
-        padding-bottom: 2.5rem;
-      }
-      /* Telefoon speaker/notch bovenaan */
-      body[data-mode="web"] .kiosk-card::before {
-        content: "";
-        position: absolute;
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 96px;
-        height: 22px;
-        background: #090d16;
-        border-radius: 999px;
-      }
-      /* Home-indicator streepje onderaan */
-      body[data-mode="web"] .kiosk-card::after {
-        content: "";
-        position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 110px;
-        height: 4px;
-        background: #475569;
-        border-radius: 999px;
-        opacity: 0.7;
-      }
-    }
-
-    /* Op een echte mobiele telefoon in web-modus: schermvullend zonder kunstmatige rand */
-    @media (max-width: 499px) {
-      body[data-mode="web"] {
-        padding: 0;
-        background: #1e293b;
-      }
-      body[data-mode="web"] .kiosk-card {
-        max-width: 100%;
-        min-height: 100dvh;
-        border-radius: 0;
-        border: none;
-        box-shadow: none;
-        padding: 1.5rem 1.25rem;
-      }
     }
   </style>
 </head>
@@ -238,6 +201,10 @@
       Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.
     </div>
 
+    <div id="soundNotice" class="sound-notice">
+      🔊 Zet het geluid van uw telefoon aan voordat u start.
+    </div>
+
     <div id="transcriptBox" class="transcript-box" style="display: none;">
       Uw antwoord verschijnt hier...
     </div>
@@ -259,7 +226,7 @@
   </div>
 
   <script>
-    let appMode = 'zuil'; // Wordt geladen uit config.json ('zuil' of 'web')
+    let appMode = 'zuil'; // Wordt bij opstarten automatisch bepaald ('mobiel' of 'zuil')
     let gesprek = [];
     let vragen = [];
     let optioneleVragen = {};
@@ -370,14 +337,14 @@
     }
 
     async function startIdleToespraak() {
-      if (!isIdleMode || appMode === 'web') return;
+      if (!isIdleMode || appMode === 'mobiel') return;
       const gekozen = kiesWillekeurigeTekst(IDLE_TOESPRAKEN, laatsteIdleToespraak);
       laatsteIdleToespraak = gekozen.index;
       document.getElementById('questionText').innerText = `${gekozen.tekst}\n${KNOP_INSTRUCTIE}`;
       setUIState('speaking', 'Welkom');
       // Eén uiting voor beide zinnen: een tweede uiting zou opnieuw met een koude start beginnen.
       await spreek(`${gekozen.tekst} ${KNOP_INSTRUCTIE}`);
-      if (!isIdleMode || appMode === 'web') return;
+      if (!isIdleMode || appMode === 'mobiel') return;
       setUIState('idle', 'Klaar voor start');
       idleToespraakTimer = setTimeout(startIdleToespraak, IDLE_TOESPRAAK_INTERVAL_MS);
     }
@@ -987,10 +954,10 @@
       }
       if (sid !== sessieId) return;
       vraagEl.innerText = 'Hartelijk dank voor uw tijd!';
-      setUIState('idle', appMode === 'web' ? 'Gesprek afgerond' : 'Klaar voor de volgende bezoeker');
+      setUIState('idle', appMode === 'mobiel' ? 'Gesprek afgerond' : 'Klaar voor de volgende bezoeker');
       document.getElementById('resetBtn').style.display = '';
       clearTimeout(samenvattingTimer);
-      if (appMode !== 'web') {
+      if (appMode !== 'mobiel') {
         samenvattingTimer = setTimeout(() => {
           if (sid === sessieId) resetKiosk();
         }, SAMENVATTING_WEERGAVE_MS);
@@ -1034,31 +1001,44 @@
       setUIState('idle', 'Klaar voor start');
       isIdleMode = true;
       startIdleIconAnimation();
-      if (appMode !== 'web') {
+      if (appMode !== 'mobiel') {
         idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
       }
     }
 
-    async function laadConfig() {
-      try {
-        const res = await fetch('/config.json', { cache: 'no-store' });
-        if (res.ok) {
-          const cfg = await res.json();
-          const raw = String(cfg.mode || cfg.modus || 'zuil').trim().toLowerCase();
-          appMode = raw === 'web' ? 'web' : 'zuil';
-        }
-      } catch (e) {
-        console.warn('config.json kon niet worden geladen, standaard zuil-modus actief:', e);
-      }
+    function detecteerModus() {
+      const isMobielToestel = /Android|iPhone|iPod|Windows Phone|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+      const isKleinScherm = window.matchMedia('(max-width: 768px)').matches;
+      return (isMobielToestel || isKleinScherm) ? 'mobiel' : 'zuil';
+    }
+
+    function initModus() {
+      appMode = detecteerModus();
       document.body.dataset.mode = appMode;
-      document.getElementById('resetBtn').innerText = appMode === 'web' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
+      document.getElementById('resetBtn').innerText = appMode === 'mobiel' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
       startIdleIconAnimation();
-      if (appMode !== 'web') {
+      clearTimeout(idleToespraakTimer);
+      if (appMode !== 'mobiel' && isIdleMode) {
         idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
       }
     }
 
-    laadConfig();
+    window.matchMedia('(max-width: 768px)').addEventListener('change', () => {
+      const nieuweModus = detecteerModus();
+      if (nieuweModus !== appMode) {
+        appMode = nieuweModus;
+        document.body.dataset.mode = appMode;
+        document.getElementById('resetBtn').innerText = appMode === 'mobiel' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
+        if (appMode === 'mobiel') {
+          clearTimeout(idleToespraakTimer);
+        } else if (isIdleMode) {
+          clearTimeout(idleToespraakTimer);
+          idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
+        }
+      }
+    });
+
+    initModus();
   </script>
 </body>
 </html>

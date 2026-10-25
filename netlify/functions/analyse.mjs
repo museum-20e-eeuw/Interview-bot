@@ -263,11 +263,32 @@ export const handler = async (event) => {
     }
   }
 
-  const tijdstip = new Date().toISOString().slice(0, 19);
+  const nu = new Date();
+  const nlDelen = Object.fromEntries(
+    new Intl.DateTimeFormat("nl-NL", {
+      timeZone: "Europe/Amsterdam",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+      .formatToParts(nu)
+      .map((p) => [p.type, p.value])
+  );
+  const datum = `${nlDelen.day}-${nlDelen.month}-${nlDelen.year}`;
+  const tijd = `${nlDelen.hour}:${nlDelen.minute}:${nlDelen.second}`;
+  const tijdstip = `${nlDelen.year}-${nlDelen.month}-${nlDelen.day}T${tijd}`;
+  const tekstMetDatumTijd = `Datum: ${datum} | Tijd: ${tijd}\n\n${transcript}`;
+
   const record = {
+    datum,
+    tijd,
     tijdstip,
     gesprek,
-    onbewerkte_tekst: transcript,
+    onbewerkte_tekst: tekstMetDatumTijd,
     analyse,
   };
 
@@ -279,7 +300,9 @@ export const handler = async (event) => {
     body: JSON.stringify({
       opgeslagen: true,
       github_opgeslagen: githubOpgeslagen,
-      onbewerkte_tekst: transcript,
+      datum,
+      tijd,
+      onbewerkte_tekst: tekstMetDatumTijd,
       analyse,
     }),
   };

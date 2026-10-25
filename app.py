@@ -26,13 +26,10 @@ BASIS_MAP = Path(__file__).resolve().parent
 CONFIG_PAD = BASIS_MAP / "config.json"
 
 def lees_config() -> dict:
-    """Leest config.json (mode en GEMINI_API_KEY) met fallback op .env / omgevingsvariabelen."""
-    mode = "zuil"
+    """Leest GEMINI_API_KEY uit config.json met fallback op .env / omgevingsvariabelen."""
     api_key = ""
     try:
         data = json.loads(CONFIG_PAD.read_text(encoding="utf-8"))
-        raw_mode = str(data.get("mode") or data.get("modus") or "zuil").strip().lower()
-        mode = "web" if raw_mode == "web" else "zuil"
         api_key = str(data.get("GEMINI_API_KEY") or data.get("gemini_api_key") or "").strip()
     except (OSError, json.JSONDecodeError):
         pass
@@ -40,7 +37,7 @@ def lees_config() -> dict:
     if not api_key:
         api_key = os.environ.get("GEMINI_API_KEY", "PLAK_HIER_JE_ECHTE_API_KEY")
 
-    return {"mode": mode, "GEMINI_API_KEY": api_key}
+    return {"GEMINI_API_KEY": api_key}
 
 # ==========================================
 # API KEY UIT CONFIG.JSON (met fallback op .env)
@@ -107,15 +104,11 @@ async def lifespan(app: FastAPI):
     cfg = lees_config()
     if cfg["GEMINI_API_KEY"].startswith("PLAK_HIER"):
         print("\n❗ Geen GEMINI_API_KEY gevonden: zet hem in config.json (of .env / omgevingsvariabele).")
-    if cfg["mode"] == "web":
-        print(f"\n🌐 Server is opgestart in WEB-modus! Open {APP_URL} in je browser.")
-        print("👉 Pas 'config.json' aan naar {\"mode\": \"zuil\"} voor de informatiezuil-modus.\n")
-    else:
-        print(f"\n🚀 Server is opgestart in ZUIL-modus! De informatiezuil opent op {APP_URL}.")
-        print("👉 Klik op het scherm op 'Start Gesprek' en kijk hier mee in de terminal.\n")
-        kiosk_timer = threading.Timer(2, start_edge_kiosk)
-        kiosk_timer.daemon = True
-        kiosk_timer.start()
+    print(f"\n🚀 Server is opgestart! De informatiezuil opent op {APP_URL}.")
+    print("👉 Klik op het scherm op 'Start Gesprek' en kijk hier mee in de terminal.\n")
+    kiosk_timer = threading.Timer(2, start_edge_kiosk)
+    kiosk_timer.daemon = True
+    kiosk_timer.start()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -193,10 +186,15 @@ def lees_vragen() -> List[str]:
     return vragen or STANDAARD_VRAGEN
 
 def sla_resultaat_op(gesprek: List[dict], onbewerkte_tekst: str, analyse: dict | None) -> None:
+    nu = datetime.now()
+    datum_str = nu.strftime("%d-%m-%Y")
+    tijd_str = nu.strftime("%H:%M:%S")
     record = {
-        "tijdstip": datetime.now().isoformat(timespec="seconds"),
+        "datum": datum_str,
+        "tijd": tijd_str,
+        "tijdstip": nu.isoformat(timespec="seconds"),
         "gesprek": gesprek,
-        "onbewerkte_tekst": onbewerkte_tekst,
+        "onbewerkte_tekst": f"Datum: {datum_str} | Tijd: {tijd_str}\n\n{onbewerkte_tekst}",
         "analyse": analyse,
     }
     with _opslag_lock:
@@ -227,10 +225,6 @@ SYSTEEM_INSTRUCTIE = (
 @app.get("/", response_class=HTMLResponse)
 def index():
     return HTMLResponse(INDEX_PAD.read_text(encoding="utf-8"))
-
-@app.get("/config.json")
-def get_config():
-    return {"mode": lees_config()["mode"]}
 
 @app.get("/vragen.txt")
 def get_vragen_txt():

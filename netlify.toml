@@ -7,12 +7,6 @@
   included_files = ["vragen.txt"]
 
 [[redirects]]
-  from = "/config.json"
-  to = "/.netlify/functions/config"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/api/vragen"
   to = "/.netlify/functions/vragen"
   status = 200
