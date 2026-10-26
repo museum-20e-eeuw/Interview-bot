@@ -2,13 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const BESCHIKBARE_MODELLEN = [
-  "gemini-3.5-flash",
-  "gemini-3.6-flash",
-  "gemini-3.7-flash",
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
-  "gemini-3.8-flash",
   "gemini-2.5-flash",
+  "gemini-3.1-flash-lite",
 ];
 
 const SYSTEEM_INSTRUCTIE =
@@ -180,6 +175,36 @@ export const handler = async (event) => {
       statusCode: 405,
       headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify({ detail: "Method Not Allowed" }),
+    };
+  }
+
+  // Controleer Origin-header tegen misbruik vanaf externe websites
+  const origin = event.headers?.origin || event.headers?.Origin || "";
+  const host = event.headers?.host || event.headers?.Host || "";
+  if (origin && host) {
+    try {
+      const originHost = new URL(origin).host;
+      if (originHost !== host) {
+        return {
+          statusCode: 403,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({ detail: "Forbidden origin" }),
+        };
+      }
+    } catch {
+      return {
+        statusCode: 403,
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({ detail: "Invalid origin" }),
+      };
+    }
+  }
+
+  if ((event.body || "").length > 50000) {
+    return {
+      statusCode: 413,
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify({ detail: "Verzoek is te groot." }),
     };
   }
 

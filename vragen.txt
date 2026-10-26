@@ -1,4 +1,5 @@
 # Eén vraag per regel. Regels met # en lege regels worden genegeerd.
+MC: "Het museum;Brick City;Beiden" Welke locatie heeft u bezocht?
 Is dit uw eerste bezoek aan ons?
 Wat is de reden van uw bezoek vandaag?
 Heeft u alles gevonden wat u zocht?

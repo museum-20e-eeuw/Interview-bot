@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import List, Literal
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -51,14 +51,9 @@ client = genai.Client(
     http_options={'timeout': 10000} # Maximaal 10 seconden wachten per poging
 )
 
-# De stabiele 3.x modellen die werken voor nieuwe API-keys (zonder 2.5 die 404 geeft)
 BESCHIKBARE_MODELLEN = [
-    "gemini-3.5-flash",
-    "gemini-3.6-flash",
-    "gemini-3.7-flash",
-    "gemini-3.5-flash-lite",
+    "gemini-2.5-flash",
     "gemini-3.1-flash-lite",
-    "gemini-3.8-flash",
 ]
 
 def start_edge_kiosk() -> None:
@@ -176,15 +171,6 @@ STANDAARD_VRAGEN = [
 
 _opslag_lock = threading.Lock()
 
-def lees_vragen() -> List[str]:
-    """Eén vraag per regel; lege regels en regels met # worden genegeerd."""
-    try:
-        regels = VRAGEN_PAD.read_text(encoding="utf-8").splitlines()
-    except OSError:
-        regels = []
-    vragen = [r.strip() for r in regels if r.strip() and not r.strip().startswith("#")]
-    return vragen or STANDAARD_VRAGEN
-
 def sla_resultaat_op(gesprek: List[dict], onbewerkte_tekst: str, analyse: dict | None) -> None:
     nu = datetime.now()
     datum_str = nu.strftime("%d-%m-%Y")
@@ -238,10 +224,6 @@ def get_vragen_txt():
 def favicon():
     return Response(status_code=204)
 
-@app.get("/api/vragen")
-def api_vragen():
-    return {"vragen": lees_vragen()}
-
 @app.post("/api/analyse")
 def api_analyse(verzoek: AnalyseVerzoek):
     transcript = "\n\n".join(f"Vraag: {b.vraag}\nAntwoord: {b.antwoord}" for b in verzoek.gesprek)
@@ -266,4 +248,6 @@ def api_analyse(verzoek: AnalyseVerzoek):
 
 if __name__ == "__main__":
     import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

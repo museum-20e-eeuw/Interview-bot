@@ -41,12 +41,11 @@
       .idle-icon.is-rotating, .idle-icon.is-pulsing, .idle-icon.is-flashing { animation: none; }
     }
 
-    /* Per scherm één visueel element bovenaan: icoon (idle), statuscirkel (gesprek) of volumemeter (antwoord) */
-    .kiosk-card[data-scherm="idle"] #orb,
-    .kiosk-card[data-scherm="idle"] .volume-meter,
-    .kiosk-card[data-scherm="gesprek"] .volume-meter,
-    .kiosk-card[data-scherm="antwoord"] #orb,
-    .kiosk-card:not([data-scherm="idle"]) .idle-icon { display: none; }
+    /* Per scherm één visueel element bovenaan: icoon (idle), statuscirkel (gesprek), volumemeter (antwoord) of dubbeltje (mc) */
+    .kiosk-card:not([data-scherm="idle"]) .idle-icon,
+    .kiosk-card:not([data-scherm="gesprek"]) #orb,
+    .kiosk-card:not([data-scherm="antwoord"]) .volume-meter,
+    .kiosk-card:not([data-scherm="mc"]) .coin-container { display: none; }
 
     .status-label { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-bottom: 0.6rem; }
     .question-text { font-size: 1.8rem; font-weight: 600; line-height: 1.4; min-height: 70px; margin-bottom: 1rem; white-space: pre-line; }
@@ -61,6 +60,98 @@
     .meter-vu { font: 700 16px 'Segoe UI', system-ui, sans-serif; fill: #3b3320; text-anchor: middle; letter-spacing: 2px; }
     .volume-meter-status { color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem; }
     .volume-meter-status:empty { display: none; }
+
+    /* Ouderwets Dubbeltje (10 cent) voor Multiple Choice vragen */
+    .coin-container {
+      margin: 0 auto 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .coin-stage {
+      width: 130px;
+      height: 175px;
+      perspective: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 10px;
+    }
+    .dubbeltje {
+      width: 104px;
+      height: 104px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rust-hoek, 0deg));
+    }
+    .dubbeltje.is-tossing {
+      animation: coin-toss 1.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+    @keyframes coin-toss {
+      0%   { transform: translateY(0px) scale(1) rotateX(var(--start-rot, 0deg)); }
+      14%  { transform: translateY(18px) scale(0.92, 0.82) rotateX(var(--start-rot, 0deg)); }
+      52%  { transform: translateY(-78px) scale(1.26) rotateX(var(--mid-rot, 900deg)) rotateZ(6deg); }
+      88%  { transform: translateY(0px) scale(1) rotateX(var(--end-rot, 1800deg)) rotateZ(0deg); }
+      94%  { transform: translateY(-12px) scale(1.05) rotateX(var(--end-rot, 1800deg)); }
+      100% { transform: translateY(0px) scale(1) rotateX(var(--end-rot, 1800deg)); }
+    }
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 50%;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+    }
+    .coin-face.munt {
+      transform: rotateX(180deg);
+    }
+    .coin-shadow {
+      width: 68px;
+      height: 12px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 75%);
+      border-radius: 50%;
+      margin-top: 6px;
+    }
+    .coin-shadow.is-tossing {
+      animation: shadow-toss 1.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+    @keyframes shadow-toss {
+      0%   { transform: scale(1); opacity: 0.85; }
+      14%  { transform: scale(1.16); opacity: 0.95; }
+      52%  { transform: scale(0.32); opacity: 0.18; }
+      88%  { transform: scale(1); opacity: 0.85; }
+      94%  { transform: scale(0.84); opacity: 0.65; }
+      100% { transform: scale(1); opacity: 0.85; }
+    }
+    .coin-result-label {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.2rem;
+      min-height: 1.3rem;
+    }
+
+    /* Multiple choice knoppen */
+    .mc-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+    .btn.mc-btn {
+      background: #2563eb;
+      border: 2px solid #60a5fa;
+      min-width: 190px;
+      margin: 0.2rem;
+    }
+    .btn.mc-btn:hover {
+      background: #1d4ed8;
+    }
+
     .btn {
       background: #E7501E; color: white; border: none; padding: 1.1rem 2.4rem;
       font-size: 1.3rem; font-weight: 600; border-radius: 999px; cursor: pointer;
@@ -70,14 +161,6 @@
     .btn.secondary { background: #475569; padding: 0.7rem 1.5rem; font-size: 1rem; }
     .btn.listen-btn { background: #059669; }
     .btn.listen-btn.active { background: #dc2626; }
-
-    .analysis-box {
-      margin-top: 2rem; text-align: left; background: #0f172a; padding: 1.5rem;
-      border-radius: 12px; border: 1px solid #334155; display: none;
-    }
-    .analysis-box h3 { color: #38bdf8; margin-bottom: 0.8rem; }
-    .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; font-size: 1.05rem; }
-    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; background: #334155; font-weight: bold; }
 
     .sound-notice {
       display: none;
@@ -150,9 +233,23 @@
     body[data-mode="mobiel"] .analog-meter {
       width: min(210px, 78%);
     }
+    body[data-mode="mobiel"] .coin-stage {
+      width: 104px;
+      height: 120px;
+    }
+    body[data-mode="mobiel"] .dubbeltje {
+      width: 92px;
+      height: 92px;
+    }
     body[data-mode="mobiel"] #controls,
-    body[data-mode="mobiel"] #answerControls {
+    body[data-mode="mobiel"] #answerControls,
+    body[data-mode="mobiel"] .mc-options {
       width: 100%;
+    }
+    body[data-mode="mobiel"] .mc-options {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
     }
     body[data-mode="mobiel"] .btn {
       width: 100%;
@@ -165,16 +262,6 @@
     body[data-mode="mobiel"] .btn.secondary {
       font-size: 0.95rem;
       padding: 0.75rem 1.2rem;
-    }
-    body[data-mode="mobiel"] .analysis-box {
-      margin-top: 1.2rem;
-      padding: 1rem 1.1rem;
-      width: 100%;
-      font-size: 0.95rem;
-    }
-    body[data-mode="mobiel"] .analysis-box h3 {
-      font-size: 1.05rem;
-      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -194,6 +281,61 @@
       </svg>
       <div id="volumeMeterStatus" class="volume-meter-status"></div>
     </div>
+
+    <!-- Ouderwets Nederlands dubbeltje (10 cent) voor Multiple Choice vragen -->
+    <div id="coinContainer" class="coin-container" onclick="gooiDubbeltje()" title="Tik om het dubbeltje nog eens op te gooien">
+      <div class="coin-stage">
+        <div id="dubbeltje" class="dubbeltje">
+          <!-- KOP: Koningin der Nederlanden -->
+          <svg class="coin-face kop" viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <radialGradient id="zilverKop" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#f8fafc"/>
+                <stop offset="55%" stop-color="#cbd5e1"/>
+                <stop offset="100%" stop-color="#64748b"/>
+              </radialGradient>
+              <path id="kopTekstBoven" d="M 18,60 A 42,42 0 1,1 102,60"/>
+              <path id="kopTekstOnder" d="M 102,60 A 42,42 0 1,1 18,60"/>
+            </defs>
+            <circle cx="60" cy="60" r="57" fill="url(#zilverKop)" stroke="#475569" stroke-width="3"/>
+            <circle cx="60" cy="60" r="53" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2.5 2.5"/>
+            <circle cx="60" cy="60" r="36" fill="none" stroke="#64748b" stroke-width="1"/>
+            <!-- Klassiek profiel met kroontje -->
+            <path d="M 48,38 L 53,32 L 58,36 L 63,31 L 68,38 Z" fill="#475569"/>
+            <path d="M 46,42 C 46,35 68,35 72,45 C 75,50 77,53 75,56 C 77,58 76,61 73,62 C 74,65 72,68 68,69 C 65,70 63,74 65,80 L 45,80 C 47,72 45,65 43,58 C 42,52 44,46 46,42 Z" fill="#475569" stroke="#e2e8f0" stroke-width="1"/>
+            <text font-size="7.2" font-weight="700" fill="#334155" letter-spacing="1.1">
+              <textPath href="#kopTekstBoven" startOffset="50%" text-anchor="middle">JULIANA KONINGIN</textPath>
+            </text>
+            <text font-size="6.8" font-weight="700" fill="#334155" letter-spacing="1">
+              <textPath href="#kopTekstOnder" startOffset="50%" text-anchor="middle">DER NEDERLANDEN</textPath>
+            </text>
+          </svg>
+          <!-- MUNT: 10 CENT -->
+          <svg class="coin-face munt" viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <radialGradient id="zilverMunt" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#f8fafc"/>
+                <stop offset="55%" stop-color="#cbd5e1"/>
+                <stop offset="100%" stop-color="#64748b"/>
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="57" fill="url(#zilverMunt)" stroke="#475569" stroke-width="3"/>
+            <circle cx="60" cy="60" r="53" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2.5 2.5"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#64748b" stroke-width="1"/>
+            <!-- Kroontje bovenaan -->
+            <path d="M 48,30 L 52,22 L 56,27 L 60,20 L 64,27 L 68,22 L 72,30 Z" fill="#475569"/>
+            <rect x="49" y="30" width="22" height="3" rx="1" fill="#334155"/>
+            <!-- 10 CENT -->
+            <text x="60" y="67" font-size="34" font-weight="800" fill="#1e293b" text-anchor="middle" font-family="Georgia, serif">10</text>
+            <text x="60" y="81" font-size="11" font-weight="700" fill="#334155" text-anchor="middle" letter-spacing="2.5">CENT</text>
+            <text x="60" y="96" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle" letter-spacing="1.5">1978</text>
+          </svg>
+        </div>
+        <div id="coinShadow" class="coin-shadow"></div>
+      </div>
+      <div id="coinResultLabel" class="coin-result-label"></div>
+    </div>
+
     <div id="orb" class="status-orb"></div>
     <div id="statusLabel" class="status-label">Klaar voor start</div>
     
@@ -216,12 +358,9 @@
         <button id="micBtn" class="btn listen-btn" onclick="toggleListening()">🎤 Spreek antwoord in</button>
       </div>
 
-      <button id="resetBtn" class="btn secondary" style="display: none;" onclick="resetKiosk()">Nieuwe Bezoeker</button>
-    </div>
+      <div id="mcControls" class="mc-options" style="display: none;"></div>
 
-    <div id="analysisBox" class="analysis-box">
-      <h3>Samenvatting van uw antwoorden</h3>
-      <div id="analysisContent"></div>
+      <button id="resetBtn" class="btn secondary" style="display: none;" onclick="resetKiosk()">Nieuwe Bezoeker</button>
     </div>
   </div>
 
@@ -230,7 +369,7 @@
     let gesprek = [];
     let vragen = [];
     let optioneleVragen = {};
-    let algemeneVraag = '';
+    let algemeneVraag = null;
     let algemeneGesteld = false;
     let gesteldeExtras = new Set();
     let vraagIndex = 0;
@@ -268,7 +407,11 @@
     let laatsteIdleToespraak = -1;
     let idleToespraakTimer = null;
     let samenvattingTimer = null;
+    let dubbeltjeTimer = null;
+    let dubbeltjeHerhaalTimer = null;
+    let huidigeMuntHoek = 0;
     let isIdleMode = true;
+    let idleSpraakGeblokkeerd = false;
     let huidigeSpraakAfronden = null;
     let huidigeUiting = null;
     let stemmenCache = null;
@@ -292,6 +435,7 @@
 
     function stopIdleToespraak() {
       isIdleMode = false;
+      idleSpraakGeblokkeerd = false;
       clearTimeout(idleToespraakTimer);
       stopIdleIconAnimation();
     }
@@ -338,15 +482,71 @@
 
     async function startIdleToespraak() {
       if (!isIdleMode || appMode === 'mobiel') return;
+      clearTimeout(idleToespraakTimer);
       const gekozen = kiesWillekeurigeTekst(IDLE_TOESPRAKEN, laatsteIdleToespraak);
       laatsteIdleToespraak = gekozen.index;
       document.getElementById('questionText').innerText = `${gekozen.tekst}\n${KNOP_INSTRUCTIE}`;
       setUIState('speaking', 'Welkom');
       // Eén uiting voor beide zinnen: een tweede uiting zou opnieuw met een koude start beginnen.
-      await spreek(`${gekozen.tekst} ${KNOP_INSTRUCTIE}`);
+      const gelukt = await spreek(`${gekozen.tekst} ${KNOP_INSTRUCTIE}`);
       if (!isIdleMode || appMode === 'mobiel') return;
+      idleSpraakGeblokkeerd = !gelukt;
       setUIState('idle', 'Klaar voor start');
       idleToespraakTimer = setTimeout(startIdleToespraak, IDLE_TOESPRAAK_INTERVAL_MS);
+    }
+
+    function stopDubbeltje() {
+      clearTimeout(dubbeltjeTimer);
+      clearTimeout(dubbeltjeHerhaalTimer);
+      dubbeltjeTimer = null;
+      dubbeltjeHerhaalTimer = null;
+      const muntEl = document.getElementById('dubbeltje');
+      const schaduwEl = document.getElementById('coinShadow');
+      if (muntEl) muntEl.classList.remove('is-tossing');
+      if (schaduwEl) schaduwEl.classList.remove('is-tossing');
+    }
+
+    function gooiDubbeltje() {
+      const muntEl = document.getElementById('dubbeltje');
+      const schaduwEl = document.getElementById('coinShadow');
+      const labelEl = document.getElementById('coinResultLabel');
+      clearTimeout(dubbeltjeTimer);
+      clearTimeout(dubbeltjeHerhaalTimer);
+      muntEl.classList.remove('is-tossing');
+      schaduwEl.classList.remove('is-tossing');
+
+      const startHoek = huidigeMuntHoek;
+      const isKop = Math.random() < 0.5;
+      const doelHoek = isKop ? 0 : 180;
+      const eindHoek = 1800 + doelHoek;
+      const midHoek = Math.round((startHoek + eindHoek) / 2);
+
+      muntEl.style.setProperty('--rust-hoek', `${startHoek}deg`);
+      muntEl.style.setProperty('--start-rot', `${startHoek}deg`);
+      muntEl.style.setProperty('--mid-rot', `${midHoek}deg`);
+      muntEl.style.setProperty('--end-rot', `${eindHoek}deg`);
+      labelEl.innerText = 'Dubbeltje wordt opgegooid...';
+
+      // Forceer reflow zodat de afzet- en opgooi-animatie elke keer opnieuw start
+      void muntEl.offsetWidth;
+
+      muntEl.classList.add('is-tossing');
+      schaduwEl.classList.add('is-tossing');
+
+      dubbeltjeTimer = setTimeout(() => {
+        huidigeMuntHoek = doelHoek;
+        muntEl.style.setProperty('--rust-hoek', `${doelHoek}deg`);
+        muntEl.classList.remove('is-tossing');
+        schaduwEl.classList.remove('is-tossing');
+        labelEl.innerText = isKop ? '🪙 Kop! (Koningin Juliana)' : '🪙 Munt! (10 cent)';
+
+        // Gooi het dubbeltje na een korte pauze automatisch opnieuw omhoog zolang we in het MC-scherm zitten
+        dubbeltjeHerhaalTimer = setTimeout(() => {
+          if (document.querySelector('.kiosk-card').dataset.scherm === 'mc') {
+            gooiDubbeltje();
+          }
+        }, 1250);
+      }, 1550);
     }
 
     function meterPunt(straal, graden) {
@@ -501,6 +701,7 @@
     }
 
     function zetScherm(naam) {
+      if (naam !== 'mc') stopDubbeltje();
       document.querySelector('.kiosk-card').dataset.scherm = naam;
     }
 
@@ -512,16 +713,25 @@
       expositie: /\bexpositie(?:s)?\b|\bexpo\b|\btentoonstelling(?:en)?\b/
     };
 
+    function parseVraagRegel(regel) {
+      const mcMatch = regel.match(/^MC:\s*"([^"]+)"\s*(.+)$/i);
+      if (mcMatch) {
+        const opties = mcMatch[1].split(';').map(o => o.trim()).filter(Boolean);
+        return { type: 'mc', opties, tekst: mcMatch[2].trim() };
+      }
+      return { type: 'open', opties: [], tekst: regel.trim() };
+    }
+
     function splitsVragen(vraagregels) {
       const gewoneVragen = [];
       const extras = {};
-      let algemeneVraag = '';
+      let algemeneVraag = null;
       for (const regel of vraagregels) {
         const optioneel = regel.match(/^Optional:\s*"key:([^"]+)"\s*(.+)$/i);
         const algemeen = regel.match(/^General:\s*(.+)$/i);
-        if (optioneel) extras[optioneel[1].trim().toLowerCase()] = optioneel[2].trim();
-        else if (algemeen) algemeneVraag = algemeen[1].trim();
-        else gewoneVragen.push(regel);
+        if (optioneel) extras[optioneel[1].trim().toLowerCase()] = parseVraagRegel(optioneel[2].trim());
+        else if (algemeen) algemeneVraag = parseVraagRegel(algemeen[1].trim());
+        else gewoneVragen.push(parseVraagRegel(regel));
       }
       return { gewoneVragen, extras, algemeneVraag };
     }
@@ -746,20 +956,20 @@
     }
 
     async function spreek(tekst) {
-      if (!('speechSynthesis' in window)) return;
+      if (!('speechSynthesis' in window)) return false;
       const sid = sessieId;
       const stemmen = await haalStemmen();
-      if (sid !== sessieId) return;
+      if (sid !== sessieId) return false;
       return new Promise(resolve => {
         let afgerond = false;
         let fallbackTimer;
-        const afronden = () => {
+        const afronden = (gelukt = true) => {
           if (afgerond) return;
           afgerond = true;
           clearTimeout(fallbackTimer);
           if (huidigeSpraakAfronden === afronden) huidigeSpraakAfronden = null;
           if (huidigeUiting === uiting) huidigeUiting = null;
-          resolve();
+          resolve(gelukt);
         };
         const uiting = new SpeechSynthesisUtterance(tekst);
         uiting.lang = 'nl-NL';
@@ -771,19 +981,19 @@
           uiting.lang = stem.lang;
         }
         uiting.rate = 0.95;
-        uiting.onend = afronden;
-        uiting.onerror = afronden;
+        uiting.onend = () => afronden(true);
+        uiting.onerror = (e) => afronden(e?.error !== 'not-allowed');
         huidigeUiting = uiting;
         huidigeSpraakAfronden = afronden;
         fallbackTimer = setTimeout(() => {
           speechSynthesis.cancel();
-          afronden();
+          afronden(false);
         }, Math.max(10000, tekst.length * 160 + 5000));
         try {
           speechSynthesis.speak(uiting);
         } catch (error) {
           console.warn('Tekst kon niet worden uitgesproken:', error);
-          afronden();
+          afronden(false);
         }
       });
     }
@@ -815,18 +1025,16 @@
       }
     }
     houdAudioWakker();
-    ['pointerdown', 'keydown'].forEach(naam => document.addEventListener(naam, houdAudioWakker));
+    ['pointerdown', 'keydown'].forEach(naam => document.addEventListener(naam, (e) => {
+      houdAudioWakker();
+      // Als de browser in zuil-modus de eerste spraak blokkeerde vóór een schermklik, start de uitnodiging direct bij de eerste aanraking buiten de startknop
+      if (isIdleMode && appMode === 'zuil' && idleSpraakGeblokkeerd && !e.target.closest('#startBtn')) {
+        idleSpraakGeblokkeerd = false;
+        startIdleToespraak();
+      }
+    }));
 
     async function haalVragenOp() {
-      try {
-        const res = await fetch('/api/vragen');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.vragen) && data.vragen.length) return data.vragen;
-        }
-      } catch (e) {
-        console.warn('/api/vragen niet bereikbaar, terugvallen op /vragen.txt:', e);
-      }
       const resTxt = await fetch('/vragen.txt');
       if (!resTxt.ok) throw new Error('HTTP ' + resTxt.status);
       const tekst = await resTxt.text();
@@ -886,35 +1094,60 @@
       await stelVraag(intro, 'tekst');
     }
 
+    function toonMcKnoppen(opties) {
+      const mcContainer = document.getElementById('mcControls');
+      mcContainer.innerHTML = '';
+      for (const optie of opties) {
+        const btn = document.createElement('button');
+        btn.className = 'btn mc-btn';
+        btn.type = 'button';
+        btn.innerText = optie;
+        btn.onclick = () => verstuurAntwoord(optie);
+        mcContainer.appendChild(btn);
+      }
+      mcContainer.style.display = '';
+    }
+
     // Het bedankje of de intro wordt samen met de vraag in één uiting uitgesproken, zodat er geen haperende pauze tussen valt.
     async function stelVraag(vooraf = '', waar = 'label') {
       const sid = sessieId;
-      const vraag = vragen[vraagIndex];
+      const vraagObj = vragen[vraagIndex];
+      const vraagTekst = vraagObj.tekst;
       const questionEl = document.getElementById('questionText');
-      questionEl.innerText = vooraf && waar === 'tekst' ? `${vooraf}\n\n${vraag}` : vraag;
+      questionEl.innerText = vooraf && waar === 'tekst' ? `${vooraf}\n\n${vraagTekst}` : vraagTekst;
       zetScherm('gesprek');
       document.getElementById('answerControls').style.display = 'none';
+      document.getElementById('mcControls').style.display = 'none';
       document.getElementById('transcriptBox').style.display = 'none';
       setUIState('speaking', vooraf && waar === 'label' ? vooraf : 'De vraag wordt voorgelezen...');
-      await spreek(vooraf ? `${vooraf} ${vraag}` : vraag);
+      await spreek(vooraf ? `${vooraf} ${vraagTekst}` : vraagTekst);
       if (sid !== sessieId) return;
 
-      questionEl.innerText = vraag; // In het luisterscherm alleen de vraag, zonder intro
-      const transcriptBox = document.getElementById('transcriptBox');
-      transcriptBox.innerText = 'Uw antwoord verschijnt hier...';
-      transcriptBox.style.display = '';
-      document.getElementById('answerControls').style.display = '';
-      zetScherm('antwoord');
-      setUIState('idle', 'Uw beurt: spreek uw antwoord');
-      startMicrofoon(true);
+      questionEl.innerText = vraagTekst; // In het antwoordscherm alleen de vraag, zonder intro
+      if (vraagObj.type === 'mc') {
+        zetScherm('mc');
+        setUIState('idle', 'Maak uw keuze');
+        gooiDubbeltje();
+        toonMcKnoppen(vraagObj.opties);
+      } else {
+        const transcriptBox = document.getElementById('transcriptBox');
+        transcriptBox.innerText = 'Uw antwoord verschijnt hier...';
+        transcriptBox.style.display = '';
+        document.getElementById('answerControls').style.display = '';
+        zetScherm('antwoord');
+        setUIState('idle', 'Uw beurt: spreek uw antwoord');
+        startMicrofoon(true);
+      }
     }
 
     async function verstuurAntwoord(tekst) {
       if (isSubmitting || vraagIndex >= vragen.length) return;
       isSubmitting = true;
+      stopDubbeltje();
       zetScherm('gesprek');
       document.getElementById('answerControls').style.display = 'none';
-      const beantwoordeVraag = vragen[vraagIndex];
+      document.getElementById('mcControls').style.display = 'none';
+      const beantwoordeVraag = vragen[vraagIndex].tekst;
       gesprek.push({ vraag: beantwoordeVraag, antwoord: tekst });
       vraagIndex++;
       plaatsOptioneleVragen(tekst);
@@ -964,15 +1197,11 @@
       }
     }
 
-    function toonAnalyse(analyse) {
-      document.getElementById('analysisContent').textContent = analyse.samenvatting;
-      document.getElementById('analysisBox').style.display = 'block';
-    }
-
     function resetKiosk() {
       sessieId++;
       stopIdleToespraak();
       clearTimeout(samenvattingTimer);
+      stopDubbeltje();
       samenvattingTimer = null;
       wachtOpAntwoord = false;
       isSubmitting = false;
@@ -984,7 +1213,7 @@
       gesprek = [];
       vragen = [];
       optioneleVragen = {};
-      algemeneVraag = '';
+      algemeneVraag = null;
       algemeneGesteld = false;
       gesteldeExtras = new Set();
       vraagIndex = 0;
@@ -994,7 +1223,7 @@
       document.getElementById('questionText').innerText = 'Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.';
       document.getElementById('transcriptBox').style.display = 'none';
       document.getElementById('answerControls').style.display = 'none';
-      document.getElementById('analysisBox').style.display = 'none';
+      document.getElementById('mcControls').style.display = 'none';
       document.getElementById('resetBtn').style.display = 'none';
       document.getElementById('startBtn').style.display = '';
       zetScherm('idle');
@@ -1012,33 +1241,28 @@
       return (isMobielToestel || isKleinScherm) ? 'mobiel' : 'zuil';
     }
 
-    function initModus() {
+    function pasModusToe() {
       appMode = detecteerModus();
       document.body.dataset.mode = appMode;
       document.getElementById('resetBtn').innerText = appMode === 'mobiel' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
-      startIdleIconAnimation();
       clearTimeout(idleToespraakTimer);
-      if (appMode !== 'mobiel' && isIdleMode) {
+      if (appMode === 'mobiel') {
+        if (isIdleMode) {
+          document.getElementById('questionText').innerText = 'Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.';
+        }
+      } else if (isIdleMode) {
         idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
       }
     }
 
     window.matchMedia('(max-width: 768px)').addEventListener('change', () => {
-      const nieuweModus = detecteerModus();
-      if (nieuweModus !== appMode) {
-        appMode = nieuweModus;
-        document.body.dataset.mode = appMode;
-        document.getElementById('resetBtn').innerText = appMode === 'mobiel' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
-        if (appMode === 'mobiel') {
-          clearTimeout(idleToespraakTimer);
-        } else if (isIdleMode) {
-          clearTimeout(idleToespraakTimer);
-          idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
-        }
+      if (detecteerModus() !== appMode) {
+        pasModusToe();
       }
     });
 
-    initModus();
+    startIdleIconAnimation();
+    pasModusToe();
   </script>
 </body>
 </html>

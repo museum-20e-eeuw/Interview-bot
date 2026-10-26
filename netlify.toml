@@ -4,14 +4,35 @@
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["vragen.txt"]
-
-[[redirects]]
-  from = "/api/vragen"
-  to = "/.netlify/functions/vragen"
-  status = 200
 
 [[redirects]]
   from = "/api/analyse"
   to = "/.netlify/functions/analyse"
   status = 200
+
+# Blokkeer directe publieke toegang tot resultaten en backend-bestanden op Netlify
+[[redirects]]
+  from = "/resultaten.json"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/app.py"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/config.json"
+  to = "/404"
+  status = 404
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "microphone=(self), camera=(), geolocation=()"

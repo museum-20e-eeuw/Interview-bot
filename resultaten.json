@@ -619,5 +619,34 @@
     ],
     "onbewerkte_tekst": "Datum: 26-10-2026 | Tijd: 06:46:11\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dit is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: het regende buiten dus ik dacht we gaan naar zinnen doen\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ik kon de horeca niet vinden\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Ja dat heb ik",
     "analyse": null
+  },
+  {
+    "datum": "26-10-2026",
+    "tijd": "09:07:18",
+    "tijdstip": "2026-10-26T09:07:18",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Brick City"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja, Dat is het eerste bezoek."
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Het regen naar buiten, dus Ik wil dan naar het museum."
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Nee, ik kom de expositie niet vinden."
+      },
+      {
+        "vraag": "Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie",
+        "antwoord": "Nee, eigenlijk niet."
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 26-10-2026 | Tijd: 09:07:18\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja, Dat is het eerste bezoek.\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Het regen naar buiten, dus Ik wil dan naar het museum.\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Nee, ik kom de expositie niet vinden.\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Nee, eigenlijk niet.",
+    "analyse": null
   }
 ]
