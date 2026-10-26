@@ -1,1 +1,31 @@
-[]
+[
+  {
+    "datum": "26-10-2026",
+    "tijd": "13:25:57",
+    "tijdstip": "2026-10-26T13:25:57",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Het museum"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dat is het eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Ik wilde graag naar de expositie"
+      },
+      {
+        "vraag": "Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie",
+        "antwoord": "Ja misschien iets met treintjes"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "ja ja"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 26-10-2026 | Tijd: 13:25:57\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Het museum\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dat is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Ik wilde graag naar de expositie\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Ja misschien iets met treintjes\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: ja ja",
+    "analyse": null
+  }
+]
