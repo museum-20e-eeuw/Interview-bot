@@ -648,5 +648,38 @@
     ],
     "onbewerkte_tekst": "Datum: 26-10-2026 | Tijd: 09:07:18\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja, Dat is het eerste bezoek.\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Het regen naar buiten, dus Ik wil dan naar het museum.\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Nee, ik kom de expositie niet vinden.\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Nee, eigenlijk niet.",
     "analyse": null
+  },
+  {
+    "datum": "26-10-2026",
+    "tijd": "09:18:37",
+    "tijdstip": "2026-10-26T09:18:37",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Het museum"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dit is het eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Ik had niks te doen dus ik dacht ik ga ze even naar het museum"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja ik denk het wel ik kon niks anders meer denken"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "een broodje kroket bij de horeca"
+      },
+      {
+        "vraag": "Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt",
+        "antwoord": "Nee omdat ik een broodje kroket meesten"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 26-10-2026 | Tijd: 09:18:37\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Het museum\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dit is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Ik had niks te doen dus ik dacht ik ga ze even naar het museum\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja ik denk het wel ik kon niks anders meer denken\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: een broodje kroket bij de horeca\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Nee omdat ik een broodje kroket meesten",
+    "analyse": null
   }
 ]
