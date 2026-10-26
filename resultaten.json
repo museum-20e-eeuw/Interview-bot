@@ -594,5 +594,30 @@
     ],
     "onbewerkte_tekst": "Datum: 25-10-2026 | Tijd: 20:05:19\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: komt wel een spelletje te spelen bijna\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: pas\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Nee ik kom geen parkeerplek\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Waarom is we wegwijzering zo",
     "analyse": null
+  },
+  {
+    "datum": "26-10-2026",
+    "tijd": "06:46:11",
+    "tijdstip": "2026-10-26T06:46:11",
+    "gesprek": [
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dit is het eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "het regende buiten dus ik dacht we gaan naar zinnen doen"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ik kon de horeca niet vinden"
+      },
+      {
+        "vraag": "Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt",
+        "antwoord": "Ja dat heb ik"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 26-10-2026 | Tijd: 06:46:11\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dit is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: het regende buiten dus ik dacht we gaan naar zinnen doen\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ik kon de horeca niet vinden\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Ja dat heb ik",
+    "analyse": null
   }
 ]
