@@ -93,5 +93,34 @@
     ],
     "onbewerkte_tekst": "Datum: 27-10-2026 | Tijd: 15:00:54\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Het museum\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Je kunt het dus ook inspreken\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: het\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: ja\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: einde is nog niet zo goed",
     "analyse": null
+  },
+  {
+    "datum": "28-10-2026",
+    "tijd": "17:14:25",
+    "tijdstip": "2026-10-28T17:14:25",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Brick City"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "op de spructe naar Uitgeest van 17 van spoor 5A Almere Oostvaarders vertrektijden 17:23 van Sport 10 B"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Amsterdam achter die"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "spookdijk"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "bijna interview"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 28-10-2026 | Tijd: 17:14:25\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: op de spructe naar Uitgeest van 17 van spoor 5A Almere Oostvaarders vertrektijden 17:23 van Sport 10 B\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Amsterdam achter die\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: spookdijk\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: bijna interview",
+    "analyse": null
   }
 ]
