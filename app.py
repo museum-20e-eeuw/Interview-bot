@@ -8,7 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Literal
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, Response
+from fastapi import HTTPException
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from google import genai
@@ -171,7 +172,7 @@ STANDAARD_VRAGEN = [
 
 _opslag_lock = threading.Lock()
 
-def sla_resultaat_op(gesprek: List[dict], onbewerkte_tekst: str, analyse: dict | None) -> None:
+def sla_resultaat_op(gesprek: List[dict], onbewerkte_tekst: str, analyse: dict | None, afgebroken: bool = False) -> None:
     nu = datetime.now()
     datum_str = nu.strftime("%d-%m-%Y")
     tijd_str = nu.strftime("%H:%M:%S")
@@ -179,6 +180,8 @@ def sla_resultaat_op(gesprek: List[dict], onbewerkte_tekst: str, analyse: dict |
         "datum": datum_str,
         "tijd": tijd_str,
         "tijdstip": nu.isoformat(timespec="seconds"),
+        "status": "Interview beëindigd door bezoeker (stopknop)" if afgebroken else "Interview volledig afgerond",
+        "afgebroken_door_bezoeker": afgebroken,
         "gesprek": gesprek,
         "onbewerkte_tekst": f"Datum: {datum_str} | Tijd: {tijd_str}\n\n{onbewerkte_tekst}",
         "analyse": analyse,
@@ -199,7 +202,8 @@ class Beurt(BaseModel):
     antwoord: str = Field(max_length=2000)
 
 class AnalyseVerzoek(BaseModel):
-    gesprek: List[Beurt] = Field(min_length=1, max_length=20)
+    gesprek: List[Beurt] = Field(default_factory=list, max_length=20)
+    afgebroken: bool = False
 
 SYSTEEM_INSTRUCTIE = (
     "Je analyseert een kort interview met een bezoeker van een informatiezuil. "
@@ -224,9 +228,21 @@ def get_vragen_txt():
 def favicon():
     return Response(status_code=204)
 
+@app.get("/manifest.webmanifest")
+def manifest():
+    return FileResponse(BASIS_MAP / "manifest.webmanifest", media_type="application/manifest+json")
+
+@app.get("/sw.js")
+def service_worker():
+    return FileResponse(BASIS_MAP / "sw.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
+
 @app.post("/api/analyse")
 def api_analyse(verzoek: AnalyseVerzoek):
+    if not verzoek.gesprek and not verzoek.afgebroken:
+        raise HTTPException(status_code=422, detail="Gesprek mag niet leeg zijn.")
     transcript = "\n\n".join(f"Vraag: {b.vraag}\nAntwoord: {b.antwoord}" for b in verzoek.gesprek)
+    if verzoek.afgebroken:
+        transcript = (transcript + "\n\n" if transcript else "") + "[Het interview is door de bezoeker beëindigd met de stopknop.]"
     gesprek_data = [b.model_dump() for b in verzoek.gesprek]
     config = types.GenerateContentConfig(
         system_instruction=SYSTEEM_INSTRUCTIE,
@@ -236,13 +252,15 @@ def api_analyse(verzoek: AnalyseVerzoek):
     )
     resultaat = None
     try:
+        if not verzoek.gesprek:
+            raise ValueError("Geen antwoorden om te analyseren (interview direct gestopt).")
         res = genereer_met_fallback(transcript, config)
         analyse = res.parsed if isinstance(res.parsed, BezoekerAnalyse) else BezoekerAnalyse.model_validate_json(res.text)
         resultaat = analyse.model_dump()
     except Exception as e:
         print(f"⚠️ Analyse mislukt (ongeanalyseerde tekst wordt wel opgeslagen): {e}")
 
-    sla_resultaat_op(gesprek_data, transcript, resultaat)
+    sla_resultaat_op(gesprek_data, transcript, resultaat, verzoek.afgebroken)
     print(f"💾 Resultaat opgeslagen in {RESULTATEN_PAD.name}")
     return {"opgeslagen": True, "onbewerkte_tekst": transcript, "analyse": resultaat}
 

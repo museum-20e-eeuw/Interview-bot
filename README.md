@@ -63,3 +63,19 @@ python app.py
 
 1. Koppel de Git-repository aan een project op [Netlify](https://app.netlify.com/). `netlify.toml` stelt automatisch de root in als publish-directory en gebruikt `netlify/functions` voor `/api/analyse`.
 2. Voeg in Netlify onder **Site configuration → Environment variables** de variabelen `GEMINI_API_KEY` en `GITHUB_TOKEN` toe. Elk afgerond gesprek op Netlify wordt daarmee automatisch bijgeschreven in `resultaten.json` in de GitHub-repository.
+
+## Stopknop
+
+Tijdens het interview staat rechtsboven een rode bakelieten **STOP**-drukknop in een verchroomde ring (met messing typeplaatje). Drukt de bezoeker hierop, dan:
+
+1. stoppen spraak, microfoon en dubbeltje direct;
+2. bedankt de stem de bezoeker netjes;
+3. worden de antwoorden tot dan toe opgeslagen in `resultaten.json` met `"status": "Interview beëindigd door bezoeker (stopknop)"` en `"afgebroken_door_bezoeker": true`.
+
+## Installeerbare webapp (volledig scherm, altijd zuil-modus)
+
+- Open de site in Edge of Chrome en kies **Installeren** (icoon in de adresbalk, of menu → *Apps* → *Deze site als app installeren*).
+- De geïnstalleerde app start via `manifest.webmanifest` op `/?mode=zuil` en draait **altijd in zuil/desktop-modus**, ook op een klein scherm.
+- Het manifest vraagt `display: fullscreen`. Desktopbrowsers openen een app vaak eerst in een venster; bij de eerste klik of aanraking schakelt de app dan zelf naar **volledig scherm**.
+- Wil je meteen volledig scherm zonder klik, zoals op de zuil, gebruik dan de kioskmodus van Edge (zoals `python app.py` al doet):
+  `msedge --kiosk https://<jouw-site>.netlify.app/?mode=zuil --edge-kiosk-type=fullscreen`

@@ -228,7 +228,9 @@ export const handler = async (event) => {
       }))
     : [];
 
-  if (gesprek.length === 0) {
+  const afgebroken = body.afgebroken === true;
+
+  if (gesprek.length === 0 && !afgebroken) {
     return {
       statusCode: 422,
       headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -236,13 +238,17 @@ export const handler = async (event) => {
     };
   }
 
-  const transcript = gesprek
+  let transcript = gesprek
     .map((b) => `Vraag: ${b.vraag}\nAntwoord: ${b.antwoord}`)
     .join("\n\n");
 
   let analyse = null;
+  if (afgebroken) {
+    transcript = (transcript ? `${transcript}\n\n` : "") +
+      "[Het interview is door de bezoeker beëindigd met de stopknop.]";
+  }
 
-  if (instellingen.apiKey) {
+  if (instellingen.apiKey && gesprek.length > 0) {
     const payload = {
       systemInstruction: {
         parts: [{ text: SYSTEEM_INSTRUCTIE }],
@@ -309,6 +315,8 @@ export const handler = async (event) => {
   const tekstMetDatumTijd = `Datum: ${datum} | Tijd: ${tijd}\n\n${transcript}`;
 
   const record = {
+    status: afgebroken ? "Interview beëindigd door bezoeker (stopknop)" : "Interview volledig afgerond",
+    afgebroken_door_bezoeker: afgebroken,
     datum,
     tijd,
     tijdstip,

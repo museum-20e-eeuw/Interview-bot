@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)" stroke="url(#brass)" stroke-width="16"/>
+  <!-- Klassieke 20e-eeuwse microfoon & VU-boog -->
+  <path d="M 120 200 A 160 160 0 0 1 392 200" fill="none" stroke="#f3e9c6" stroke-width="14" stroke-linecap="round" stroke-dasharray="18 14"/>
+  <rect x="206" y="130" width="100" height="160" rx="50" fill="url(#brass)" stroke="#fef3c7" stroke-width="6"/>
+  <line x1="226" y1="175" x2="286" y2="175" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+  <line x1="220" y1="205" x2="292" y2="205" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+  <line x1="226" y1="235" x2="286" y2="235" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 166 220 A 90 90 0 0 0 346 220" fill="none" stroke="#E7501E" stroke-width="16" stroke-linecap="round"/>
+  <line x1="256" y1="310" x2="256" y2="380" stroke="#E7501E" stroke-width="16" stroke-linecap="round"/>
+  <rect x="176" y="372" width="160" height="28" rx="14" fill="#E7501E"/>
+  <text x="256" y="452" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#f8fafc" text-anchor="middle" letter-spacing="3">20e EEUW</text>
+</svg>
+

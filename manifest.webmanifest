@@ -1,0 +1,28 @@
+{
+  "id": "/?mode=zuil",
+  "name": "Museum van de 20e Eeuw - Informatiezuil",
+  "short_name": "Interview-zuil",
+  "description": "Informatiezuil voor bezoekersinterviews van het Museum van de 20e Eeuw (altijd in desktop/zuil-modus).",
+  "lang": "nl-NL",
+  "start_url": "/?mode=zuil",
+  "scope": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "background_color": "#0f172a",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/museum.ico",
+      "sizes": "48x48 64x64 128x128 256x256",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ]
+}
+
