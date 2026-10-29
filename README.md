@@ -19,8 +19,8 @@ Bij het opstarten detecteert `index.html` automatisch op wat voor apparaat en sc
 ## Hoe het werkt
 
 1. In idle-modus (alleen bij `zuil`) spreekt de zuil afwisselende uitnodigingen uit, gevolgd door de instructie om op de oranje knop te drukken. De bezoeker drukt op "Start Gesprek"; een stem (Fenna in Edge) spreekt daarna een willekeurige welkomstzin uit.
-2. De vragen uit `vragen.txt` worden één voor één voorgelezen. Na ieder antwoord volgt een kort, afwisselend bedankje (in dezelfde uiting als de volgende vraag, om haperen te voorkomen). Tijdens inspreken toont het scherm alleen de vraag, het herkende antwoord en een analoge volumemeter (die op de plek van het icoon staat).
-3. Drie soorten speciale regels in `vragen.txt`:
+2. De vragen uit `bot-teksten.txt` worden één voor één voorgelezen. Na ieder antwoord volgt een kort, afwisselend bedankje (in dezelfde uiting als de volgende vraag, om haperen te voorkomen). Tijdens inspreken toont het scherm alleen de vraag, het herkende antwoord en een analoge volumemeter (die op de plek van het icoon staat).
+3. Drie soorten speciale regels onder `[VRAGEN]` in `bot-teksten.txt`:
    - `MC: "Optie 1;Optie 2;Optie 3" Vraagtekst` toont een meerkeuzevraag met klikbare knoppen (gescheiden door `;` tussen dubbele aanhalingstekens). In plaats van de VU-volumemeter wordt bovenaan een ouderwets Nederlands dubbeltje (10 cent met koningin Juliana) opgegooid dat op *Kop* of *Munt* belandt.
    - `Optional: "key:horeca" ...` en `Optional: "key:Expositie" ...` worden direct gesteld nadat een antwoord (op welke vraag dan ook) horeca of een expositie noemt, ieder maximaal één keer.
    - `General: ...` is de algemene vraag (bijvoorbeeld om suggesties). Die wordt na de gewone vragen alleen gesteld als in geen enkel eerder antwoord horeca of een expositie is genoemd. Noemt het antwoord op de algemene vraag zelf horeca of een expositie, dan volgt alsnog de bijbehorende optionele vraag.
@@ -37,7 +37,8 @@ Bij het opstarten detecteert `index.html` automatisch op wat voor apparaat en sc
 | `netlify.toml` | Configuratie voor hosting, beveiligingsheaders en redirects op Netlify |
 | `netlify/functions/` | Serverless functie (`analyse.mjs`) voor Gemini-analyse en GitHub-opslag op Netlify |
 | `static/` | Statische bestanden, waaronder het icoon dat in idle-modus animeert |
-| `vragen.txt` | De vragen, één per regel (regels met `#` worden genegeerd) |
+| `bot-teksten.txt` | Alle bot-teksten (welkomstboodschappen, idle-toespraken, bedankjes, stoptekst én de vragen) |
+| `vragen.txt` | Vragenbestand (overgenomen in en vervangen door `bot-teksten.txt`, blijft als fallback beschikbaar) |
 | `resultaten.json` | Opgeslagen gesprekken, ongeanalyseerde tekst en analyses |
 | `.env` | Bevat `GEMINI_API_KEY` (fallback voor lokaal gebruik) |
 

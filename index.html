@@ -460,31 +460,32 @@
     let wachtOpAntwoord = false; // True zolang we een gesproken antwoord verwachten
     let sessieId = 0; // Verandert bij reset, zodat oude async acties stoppen
     let interviewActief = false; // True zolang de bezoeker het interview met de stopknop kan beëindigen
-    const STOP_BEDANKJE = 'Geen probleem, we stoppen met het interview. Hartelijk dank voor je tijd en nog een fijne dag!';
+    let STOP_BEDANKJE = 'Geen probleem, we stoppen met het interview. Hartelijk dank voor je tijd en nog een fijne dag!';
     const VOORKEURSSTEMMEN = ['Fenna', 'Colette', 'Microsoft Frank', 'Google Nederlands']; // Fenna en Colette zijn online Edge-stemmen; zonder internet valt de zuil terug op de lokale stem Frank
     const SAMENVATTING_WEERGAVE_MS = 6000;
-    const INTRO_TEKSTEN = [
+    let INTRO_TEKSTEN = [
       'Hallo, wat leuk dat je ons museum hebt bezocht! Zou je misschien een paar vragen over ons museum willen beantwoorden?',
       'Welkom! Fijn dat je bij ons langs bent geweest. Heb je zin om een paar korte vragen over je bezoek te beantwoorden?',
       'Hoi, leuk dat je er was! Zou je ons willen helpen door een paar vragen over het museum te beantwoorden?',
       'Dag! Bedankt voor je bezoek aan ons museum. Mogen we je een paar korte vragen stellen?',
       'Hallo en bedankt voor je bezoek! Wil je een paar vragen over ons museum beantwoorden? Dat helpt ons enorm.'
     ];
-    const BEDANK_TEKSTEN = [
+    let BEDANK_TEKSTEN = [
       'Dank je wel voor je antwoord.',
       'Bedankt, fijn dat je dit deelt.',
       'Dank je, dat helpt ons verder.',
       'Ok, bedankt',
       'Dank je wel, ik waardeer je antwoord.'
     ];
-    const IDLE_TOESPRAKEN = [
+    let IDLE_TOESPRAKEN = [
       'Hallo mag ik kort even iets aan je vragen?',
       'Hallo, heb je heel even tijd voor een paar korte vragen?',
       'Hoi, mag ik je kort iets vragen over je bezoek?',
       'Goedendag, zou ik je een paar korte vragen mogen stellen?',
       'Hallo, wil je ons kort helpen met een paar vragen over het museum?'
     ];
-    const KNOP_INSTRUCTIE = 'Druk op de oranje knop om het gesprek te starten.';
+    let KNOP_INSTRUCTIE = 'Druk op de oranje knop om het gesprek te starten.';
+    let geladenVraagRegels = [];
     const IDLE_TOESPRAAK_INTERVAL_MS = 25000;
     const METER_HOEK = 50; // De naald loopt van -50 tot +50 graden
     const METER_PIVOT = { x: 100, y: 108 };
@@ -1120,7 +1121,57 @@
       }
     }));
 
+    async function laadBotTeksten() {
+      try {
+        let res = await fetch('/bot-teksten.txt');
+        if (!res.ok) {
+          res = await fetch('/vragen.txt');
+        }
+        if (!res.ok) return;
+        const tekst = await res.text();
+        const regels = tekst.split(/\r?\n/);
+        let huidigeSectie = 'VRAGEN';
+        const secties = {
+          IDLE_TOESPRAKEN: [],
+          KNOP_INSTRUCTIE: [],
+          INTRO_TEKSTEN: [],
+          BEDANK_TEKSTEN: [],
+          STOP_BEDANKJE: [],
+          VRAGEN: []
+        };
+
+        for (const rawRegel of regels) {
+          const regel = rawRegel.trim();
+          if (!regel || regel.startsWith('#')) continue;
+          const sectieMatch = regel.match(/^\[([A-Z_]+)\]$/i);
+          if (sectieMatch) {
+            huidigeSectie = sectieMatch[1].toUpperCase();
+            if (!secties[huidigeSectie]) secties[huidigeSectie] = [];
+            continue;
+          }
+          if (secties[huidigeSectie]) {
+            secties[huidigeSectie].push(regel);
+          } else {
+            secties.VRAGEN.push(regel);
+          }
+        }
+
+        if (secties.IDLE_TOESPRAKEN.length) IDLE_TOESPRAKEN = secties.IDLE_TOESPRAKEN;
+        if (secties.KNOP_INSTRUCTIE.length) KNOP_INSTRUCTIE = secties.KNOP_INSTRUCTIE.join(' ');
+        if (secties.INTRO_TEKSTEN.length) INTRO_TEKSTEN = secties.INTRO_TEKSTEN;
+        if (secties.BEDANK_TEKSTEN.length) BEDANK_TEKSTEN = secties.BEDANK_TEKSTEN;
+        if (secties.STOP_BEDANKJE.length) STOP_BEDANKJE = secties.STOP_BEDANKJE.join(' ');
+        if (secties.VRAGEN.length) geladenVraagRegels = secties.VRAGEN;
+      } catch (err) {
+        console.warn('Bot-teksten konden niet worden geladen, standaardteksten blijven actief:', err);
+      }
+    }
+
     async function haalVragenOp() {
+      await laadBotTeksten();
+      if (geladenVraagRegels && geladenVraagRegels.length) {
+        return geladenVraagRegels;
+      }
       const resTxt = await fetch('/vragen.txt');
       if (!resTxt.ok) throw new Error('HTTP ' + resTxt.status);
       const tekst = await resTxt.text();
@@ -1397,6 +1448,7 @@
       zetScherm('idle');
       setUIState('idle', 'Klaar voor start');
       isIdleMode = true;
+      laadBotTeksten();
       startIdleIconAnimation();
       if (appMode !== 'mobiel') {
         idleToespraakTimer = setTimeout(startIdleToespraak, 1000);
@@ -1430,6 +1482,7 @@
       }
     });
 
+    laadBotTeksten();
     startIdleIconAnimation();
     pasModusToe();
   </script>

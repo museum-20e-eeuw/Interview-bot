@@ -2,6 +2,7 @@ const CACHE_NAAM = "interview-zuil-v1";
 const SHELL_BESTANDEN = [
   "/",
   "/?mode=zuil",
+  "/bot-teksten.txt",
   "/manifest.webmanifest",
   "/static/museum.ico",
   "/static/icon.svg",
@@ -50,4 +51,3 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(verzoek).then((gevonden) => gevonden || caches.match("/")))
   );
 });
-

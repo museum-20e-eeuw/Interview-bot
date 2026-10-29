@@ -159,6 +159,7 @@ class BezoekerAnalyse(BaseModel):
 # 2. BESTANDEN EN VRAGEN
 # ==========================================
 VRAGEN_PAD = BASIS_MAP / "vragen.txt"
+BOT_TEKSTEN_PAD = BASIS_MAP / "bot-teksten.txt"
 RESULTATEN_PAD = BASIS_MAP / "resultaten.json"
 INDEX_PAD = BASIS_MAP / "index.html"
 app.mount("/static", StaticFiles(directory=BASIS_MAP / "static"), name="static")
@@ -216,12 +217,21 @@ SYSTEEM_INSTRUCTIE = (
 def index():
     return HTMLResponse(INDEX_PAD.read_text(encoding="utf-8"))
 
+@app.get("/bot-teksten.txt")
+def get_bot_teksten_txt():
+    if BOT_TEKSTEN_PAD.is_file():
+        return Response(content=BOT_TEKSTEN_PAD.read_text(encoding="utf-8"), media_type="text/plain; charset=utf-8")
+    if VRAGEN_PAD.is_file():
+        return Response(content=VRAGEN_PAD.read_text(encoding="utf-8"), media_type="text/plain; charset=utf-8")
+    return Response(content="", media_type="text/plain; charset=utf-8")
+
 @app.get("/vragen.txt")
 def get_vragen_txt():
-    try:
-        inhoud = VRAGEN_PAD.read_text(encoding="utf-8")
-    except OSError:
-        inhoud = "\n".join(STANDAARD_VRAGEN)
+    if VRAGEN_PAD.is_file():
+        return Response(content=VRAGEN_PAD.read_text(encoding="utf-8"), media_type="text/plain; charset=utf-8")
+    if BOT_TEKSTEN_PAD.is_file():
+        return Response(content=BOT_TEKSTEN_PAD.read_text(encoding="utf-8"), media_type="text/plain; charset=utf-8")
+    inhoud = "\n".join(STANDAARD_VRAGEN)
     return Response(content=inhoud, media_type="text/plain; charset=utf-8")
 
 @app.get("/favicon.ico")
@@ -266,6 +276,4 @@ def api_analyse(verzoek: AnalyseVerzoek):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-
     uvicorn.run(app, host="127.0.0.1", port=8000)

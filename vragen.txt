@@ -1,8 +1,0 @@
-# Eén vraag per regel. Regels met # en lege regels worden genegeerd.
-MC: "Het museum;Brick City;Beiden" Welke locatie heeft u bezocht?
-Is dit uw eerste bezoek aan ons?
-Wat is de reden van uw bezoek vandaag?
-Heeft u alles gevonden wat u zocht?
-General: Heeft u nog suggesties of opmerkingen voor ons?
-Optional: "key:horeca" Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt
-Optional: "key:Expositie" Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie
