@@ -2,24 +2,24 @@
 # BOT-TEKSTEN VOOR DE INFORMATIEZUIL (Museum van de 20e Eeuw)
 # =====================================================================
 # In dit bestand staan alle gesproken teksten van de bot, inclusief de vragen.
-#
 # Regels die beginnen met een # en lege regels worden genegeerd.
 # Elke sectie begint met een sectienaam tussen rechte haken: [SECTIENAAM]
 
 [IDLE_TOESPRAKEN]
-# Lokroepen die de zuil in ruststand afwisselend uitspreekt om bezoekers uit te nodigen.
+# Teksten die de zuil in ruststand afwisselend uitspreekt om bezoekers uit te nodigen.
 Hallo mag ik kort even iets aan je vragen?
 Hallo, heb je heel even tijd voor een paar korte vragen?
 Hoi, mag ik je kort iets vragen over je bezoek?
 Goedendag, zou ik je een paar korte vragen mogen stellen?
 Hallo, wil je ons kort helpen met een paar vragen over het museum?
+Welkom, mag ik je iets vragen?
 
 [KNOP_INSTRUCTIE]
-# Wordt direct achter de gekozen lokroep uitgesproken:
+# Wordt direct achter de gekozen lokroep uitgesproken.
 Druk op de oranje knop om het gesprek te starten.
 
 [INTRO_TEKSTEN]
-# Welkomstzinnen die worden uitgesproken zodra de bezoeker op de startknop drukt:
+# Worden willekeurig uitgesproken zodra de bezoeker op Start Gesprek drukt.
 Hallo, wat leuk dat je ons museum hebt bezocht! Zou je misschien een paar vragen over ons museum willen beantwoorden?
 Welkom! Fijn dat je bij ons langs bent geweest. Heb je zin om een paar korte vragen over je bezoek te beantwoorden?
 Hoi, leuk dat je er was! Zou je ons willen helpen door een paar vragen over het museum te beantwoorden?
@@ -27,7 +27,7 @@ Dag! Bedankt voor je bezoek aan ons museum. Mogen we je een paar korte vragen st
 Hallo en bedankt voor je bezoek! Wil je een paar vragen over ons museum beantwoorden? Dat helpt ons enorm.
 
 [BEDANK_TEKSTEN]
-# Korte bedankjes die na elk beantwoord vraagstuk worden uitgesproken:
+# Korte bedankjes die na elk beantwoord vraagstuk worden uitgesproken.
 Dank je wel voor je antwoord.
 Bedankt, fijn dat je dit deelt.
 Dank je, dat helpt ons verder.
@@ -35,19 +35,15 @@ Ok, bedankt
 Dank je wel
 
 [STOP_BEDANKJE]
-# Afsluitende tekst wanneer de bezoeker op de rode STOP-knop drukt:
+# Vaste tekst wanneer de bezoeker op de rode STOP-knop drukt.
 Geen probleem, Hartelijk dank voor je tijd en nog een fijne dag!
 
 [VRAGEN]
-# De interviewvragen die de bot één voor één stelt.
-# Type MC: meerkeuze met "optie1;optie2;..." en een 3D opgooiend dubbeltje.
-# Type General: algemene suggestievraag (alleen gesteld als horeca of expositie nog niet genoemd is).
-# Type Optional: optionele vervolgvraag bij sleutelwoord 'horeca' of 'expositie'.
-MC: "Het museum;Brick City;Beiden" Welke locatie heeft u bezocht?
+# De vragen die de bot één voor één stelt. Gebruik 'MC: "optie1;optie2" Vraag' voor meerkeuze of 'Optional: "key:..."' voor optionele vragen.
+MC: "Het museum;Brick City;Beiden;Niets" Welke locatie heeft u bezocht?
 Is dit uw eerste bezoek aan ons?
 Wat is de reden van uw bezoek vandaag?
 Heeft u alles gevonden wat u zocht?
 General: Heeft u nog suggesties of opmerkingen voor ons?
 Optional: "key:horeca" Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt
 Optional: "key:Expositie" Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie
-
