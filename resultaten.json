@@ -13,5 +13,20 @@
     ],
     "onbewerkte_tekst": "Datum: 29-10-2026 | Tijd: 13:17:43\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\n[Het interview is door de bezoeker beëindigd met de stopknop.]",
     "analyse": null
+  },
+  {
+    "status": "Interview beëindigd door bezoeker (stopknop)",
+    "afgebroken_door_bezoeker": true,
+    "datum": "29-10-2026",
+    "tijd": "13:19:01",
+    "tijdstip": "2026-10-29T13:19:01",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Brick City"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 29-10-2026 | Tijd: 13:19:01\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\n[Het interview is door de bezoeker beëindigd met de stopknop.]",
+    "analyse": null
   }
 ]
