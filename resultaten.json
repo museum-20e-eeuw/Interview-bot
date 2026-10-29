@@ -28,5 +28,40 @@
     ],
     "onbewerkte_tekst": "Datum: 29-10-2026 | Tijd: 13:19:01\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\n[Het interview is door de bezoeker beëindigd met de stopknop.]",
     "analyse": null
+  },
+  {
+    "status": "Interview volledig afgerond",
+    "afgebroken_door_bezoeker": false,
+    "datum": "29-10-2026",
+    "tijd": "13:22:21",
+    "tijdstip": "2026-10-29T13:22:21",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Brick City"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja dit is het eerste bezoek"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Ik ben naar de expositie geweest"
+      },
+      {
+        "vraag": "Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie",
+        "antwoord": "ja iets met kanaries"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja behalve de koffie en dan horeca"
+      },
+      {
+        "vraag": "Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt",
+        "antwoord": "Ja ik denk het wel"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 29-10-2026 | Tijd: 13:22:21\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja dit is het eerste bezoek\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Ik ben naar de expositie geweest\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: ja iets met kanaries\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja behalve de koffie en dan horeca\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Ja ik denk het wel",
+    "analyse": null
   }
 ]
