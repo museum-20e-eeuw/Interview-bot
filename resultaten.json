@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "status": "Interview volledig afgerond",
+    "afgebroken_door_bezoeker": false,
+    "datum": "29-10-2026",
+    "tijd": "17:07:58",
+    "tijdstip": "2026-10-29T17:07:58",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Niets"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Nee dit is niet Het eerste bezoek Ik ben niet meer geweest"
+      },
+      {
+        "vraag": "Wat is de reden van uw bezoek vandaag?",
+        "antwoord": "Nou ja niks eigenlijk"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja ik denk het wel"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "Nee eigenlijk niet"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 29-10-2026 | Tijd: 17:07:58\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Niets\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Nee dit is niet Het eerste bezoek Ik ben niet meer geweest\n\nVraag: Wat is de reden van uw bezoek vandaag?\nAntwoord: Nou ja niks eigenlijk\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja ik denk het wel\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Nee eigenlijk niet",
+    "analyse": null
+  }
+]
