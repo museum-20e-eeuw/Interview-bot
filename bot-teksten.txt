@@ -16,7 +16,7 @@ Welkom, mag ik je iets vragen?
 
 [KNOP_INSTRUCTIE]
 # Wordt direct achter de gekozen lokroep uitgesproken.
-Druk op de oranje knop om het gesprek te starten.
+Druk op de oranje knop om te beginnen
 
 [INTRO_TEKSTEN]
 # Worden willekeurig uitgesproken zodra de bezoeker op Start Gesprek drukt.
@@ -40,9 +40,9 @@ Geen probleem, Hartelijk dank voor je tijd en nog een fijne dag!
 
 [VRAGEN]
 # De vragen die de bot één voor één stelt. Gebruik 'MC: "optie1;optie2" Vraag' voor meerkeuze of 'Optional: "key:..."' voor optionele vragen.
-MC: "Het museum;Brick City;Beiden;Niets" Welke locatie heeft u bezocht?
-Is dit uw eerste bezoek aan ons?
-Wat is de reden van uw bezoek vandaag?
+MC: "Het museum;Brick City;Beiden" Welke locatie heeft u bezocht?
+MC: "Ja;Nee" Is dit uw eerste bezoek aan ons?
+MC: "Tip familie; Krant; Internet; Social Media" Waarom bezoekt u ons?
 Heeft u alles gevonden wat u zocht?
 General: Heeft u nog suggesties of opmerkingen voor ons?
 Optional: "key:horeca" Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt
