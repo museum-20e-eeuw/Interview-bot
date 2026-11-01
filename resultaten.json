@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "status": "Interview beëindigd door bezoeker (stopknop)",
+    "afgebroken_door_bezoeker": true,
+    "datum": "01-11-2026",
+    "tijd": "10:00:06",
+    "tijdstip": "2026-11-01T10:00:06",
+    "gesprek": [],
+    "onbewerkte_tekst": "Datum: 01-11-2026 | Tijd: 10:00:06\n\n[Het interview is door de bezoeker beëindigd met de stopknop.]",
+    "analyse": null
+  }
+]
