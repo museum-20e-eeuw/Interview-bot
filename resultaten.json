@@ -47,5 +47,15 @@
     "gesprek": [],
     "onbewerkte_tekst": "Datum: 06-11-2026 | Tijd: 17:25:59\n\n[Het interview is door de bezoeker beëindigd met de stopknop.]",
     "analyse": null
+  },
+  {
+    "status": "Interview beëindigd door bezoeker (stopknop)",
+    "afgebroken_door_bezoeker": true,
+    "datum": "06-11-2026",
+    "tijd": "17:37:28",
+    "tijdstip": "2026-11-06T17:37:28",
+    "gesprek": [],
+    "onbewerkte_tekst": "Datum: 06-11-2026 | Tijd: 17:37:28\n\n[Het interview is door de bezoeker beëindigd met de stopknop.]",
+    "analyse": null
   }
 ]
