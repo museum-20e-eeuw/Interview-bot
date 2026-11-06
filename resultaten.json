@@ -1,1 +1,41 @@
-[]
+[
+  {
+    "status": "Interview volledig afgerond",
+    "afgebroken_door_bezoeker": false,
+    "datum": "06-11-2026",
+    "tijd": "17:25:41",
+    "tijdstip": "2026-11-06T17:25:41",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Het museum"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Ja"
+      },
+      {
+        "vraag": "Waarom bezoekt u ons?",
+        "antwoord": "Krant"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "Ja ik heb alles gevonden wat ik zocht"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "Ik vond de horeca en de broodjes erg slecht"
+      },
+      {
+        "vraag": "Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt",
+        "antwoord": "Nee ik ben alleen naar de expositie geweest"
+      },
+      {
+        "vraag": "Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie",
+        "antwoord": "Nee misschien iets met oude rotzooi dat heb ik genoeg in huis"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 06-11-2026 | Tijd: 17:25:41\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Het museum\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Ja\n\nVraag: Waarom bezoekt u ons?\nAntwoord: Krant\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Ja ik heb alles gevonden wat ik zocht\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Ik vond de horeca en de broodjes erg slecht\n\nVraag: Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt\nAntwoord: Nee ik ben alleen naar de expositie geweest\n\nVraag: Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie\nAntwoord: Nee misschien iets met oude rotzooi dat heb ik genoeg in huis",
+    "analyse": null
+  }
+]
