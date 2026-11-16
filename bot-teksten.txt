@@ -42,8 +42,8 @@ Geen probleem, Hartelijk dank voor je tijd en nog een fijne dag!
 # De vragen die de bot één voor één stelt. Gebruik 'MC: "optie1;optie2" Vraag' voor meerkeuze of 'Optional: "key:..."' voor optionele vragen.
 MC: "Het museum;Brick City;Beiden" Welke locatie heeft u bezocht?
 MC: "Ja;Nee" Is dit uw eerste bezoek aan ons?
-MC: "Tip familie; Krant; Internet; Social Media" Waarom bezoekt u ons?
 Heeft u alles gevonden wat u zocht?
 General: Heeft u nog suggesties of opmerkingen voor ons?
 Optional: "key:horeca" Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt
 Optional: "key:Expositie" Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie
+MC: "Leuk; Niet Leuk" Hoe vond u het bezoek?
