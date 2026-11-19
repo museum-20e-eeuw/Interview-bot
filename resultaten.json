@@ -39,5 +39,36 @@
     ],
     "onbewerkte_tekst": "Datum: 19-11-2026 | Tijd: 17:00:40\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Het museum\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Nee\n\nVraag: Hoe vond u het bezoek?\nAntwoord: Leuk\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: Nee ik heb niet alles gevonden\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Nee niet echt",
     "analyse": null
+  },
+  {
+    "status": "Interview volledig afgerond",
+    "afgebroken_door_bezoeker": false,
+    "datum": "19-11-2026",
+    "tijd": "18:50:28",
+    "tijdstip": "2026-11-19T18:50:28",
+    "gesprek": [
+      {
+        "vraag": "Welke locatie heeft u bezocht?",
+        "antwoord": "Brick City"
+      },
+      {
+        "vraag": "Is dit uw eerste bezoek aan ons?",
+        "antwoord": "Nee"
+      },
+      {
+        "vraag": "Hoe vond u het bezoek?",
+        "antwoord": "Leuk"
+      },
+      {
+        "vraag": "Heeft u alles gevonden wat u zocht?",
+        "antwoord": "ja ja ja"
+      },
+      {
+        "vraag": "Heeft u nog suggesties of opmerkingen voor ons?",
+        "antwoord": "Ja geen suggesties"
+      }
+    ],
+    "onbewerkte_tekst": "Datum: 19-11-2026 | Tijd: 18:50:28\n\nVraag: Welke locatie heeft u bezocht?\nAntwoord: Brick City\n\nVraag: Is dit uw eerste bezoek aan ons?\nAntwoord: Nee\n\nVraag: Hoe vond u het bezoek?\nAntwoord: Leuk\n\nVraag: Heeft u alles gevonden wat u zocht?\nAntwoord: ja ja ja\n\nVraag: Heeft u nog suggesties of opmerkingen voor ons?\nAntwoord: Ja geen suggesties",
+    "analyse": null
   }
 ]
