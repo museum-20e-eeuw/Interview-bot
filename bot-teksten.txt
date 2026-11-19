@@ -38,6 +38,9 @@ Dank je wel
 # Vaste tekst wanneer de bezoeker op de rode STOP-knop drukt.
 Geen probleem, Hartelijk dank voor je tijd en nog een fijne dag!
 
+[VOORKEURSSTEMMEN]
+# Voorkeur voor voorleesstemmen (Nederlands-Nederlands, vrouwelijk). Fenna en Maartje (Edge Natural nl-NL), Fleur (Windows nl-NL), Claire (Apple nl-NL), Google Nederlands.
+
 [VRAGEN]
 # Stel hier de interviewvragen op, pas de volgorde aan en kies per vraag het type (standaard, algemeen of optioneel op keyword) en de antwoordopties bij multiple choice.
 MC: "Het museum; Brick City; Beiden" Welke locatie heeft u bezocht?
