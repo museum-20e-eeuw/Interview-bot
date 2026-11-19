@@ -1107,7 +1107,7 @@
       if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
 
-    async function spreek(tekst) {
+    async function spreek(tekst, opties = {}) {
       if (!('speechSynthesis' in window)) return false;
       const sid = sessieId;
       const stemmen = await haalStemmen();
@@ -1130,7 +1130,8 @@
           uiting.voice = stem;
           uiting.lang = isBelgischeStem(stem) ? stem.lang : 'nl-NL';
         }
-        uiting.rate = 0.95;
+        uiting.rate = typeof opties.rate === 'number' ? opties.rate : 0.95;
+        uiting.pitch = typeof opties.pitch === 'number' ? opties.pitch : 1.0;
         uiting.onend = () => afronden(true);
         uiting.onerror = (e) => afronden(e?.error !== 'not-allowed');
         huidigeUiting = uiting;
@@ -1319,22 +1320,58 @@
       mcContainer.style.display = '';
     }
 
-    // Het bedankje of de intro wordt samen met de vraag in één uiting uitgesproken, zodat er geen haperende pauze tussen valt.
+    function normaliseerBedankje(tekst) {
+      let t = (tekst || '').trim();
+      if (!t) return '';
+      if (!/[.!?]$/.test(t)) {
+        t += '!';
+      }
+      return t;
+    }
+
+    function normaliseerVraag(tekst) {
+      let t = (tekst || '').trim();
+      if (!t) return '';
+      if (!/[?]$/.test(t)) {
+        t = t.replace(/[.!]$/, '') + '?';
+      }
+      return t;
+    }
+
+    // Het bedankje (of de intro) en de vraag worden na elkaar uitgesproken met een duidelijke pauze en eigen intonatie.
     async function stelVraag(vooraf = '', waar = 'label') {
       const sid = sessieId;
       const vraagObj = vragen[vraagIndex];
-      const vraagTekst = vraagObj.tekst;
+      const vraagTekst = normaliseerVraag(vraagObj.tekst);
       const questionEl = document.getElementById('questionText');
-      questionEl.innerText = vooraf && waar === 'tekst' ? `${vooraf}\n\n${vraagTekst}` : vraagTekst;
+      
       zetScherm('gesprek');
       document.getElementById('answerControls').style.display = 'none';
       document.getElementById('mcControls').style.display = 'none';
       document.getElementById('transcriptBox').style.display = 'none';
-      setUIState('speaking', vooraf && waar === 'label' ? vooraf : 'De vraag wordt voorgelezen...');
-      await spreek(vooraf ? `${vooraf} ${vraagTekst}` : vraagTekst);
+
+      if (vooraf) {
+        const netteVooraf = normaliseerBedankje(vooraf);
+        // Toon eerst het bedankje of de welkomstintro op het scherm
+        questionEl.innerText = waar === 'tekst' ? `${netteVooraf}\n\n${vraagTekst}` : netteVooraf;
+        setUIState('speaking', netteVooraf);
+        
+        // 1. Spreek het bedankje / de intro uit met een warme, afrondende intonatie
+        await spreek(netteVooraf, { pitch: 1.02, rate: 0.96 });
+        if (sid !== sessieId) return;
+
+        // 2. Korte, hoorbare pauze (circa 650 ms) zodat duidelijk hoorbaar is dat het 2 aparte delen zijn
+        await new Promise(r => setTimeout(r, 650));
+        if (sid !== sessieId) return;
+      }
+
+      // 3. Toon nu de eigenlijke vraag en spreek deze uit met vraag-intonatie
+      questionEl.innerText = vraagTekst;
+      setUIState('speaking', 'Vraag stellen...');
+      await spreek(vraagTekst, { pitch: 1.0, rate: 0.93 });
       if (sid !== sessieId) return;
 
-      questionEl.innerText = vraagTekst; // In het antwoordscherm alleen de vraag, zonder intro
+      // 4. Toon antwoordknoppen of microfoon
       if (vraagObj.type === 'mc') {
         zetScherm('mc');
         setUIState('idle', 'Maak uw keuze');
@@ -1372,10 +1409,10 @@
         await stelVraag(bedankje.tekst);
         return;
       }
-      document.getElementById('questionText').innerText = bedankje.tekst;
+      document.getElementById('questionText').innerText = normaliseerBedankje(bedankje.tekst);
       zetInterviewActief(false); // Laatste vraag is beantwoord: stoppen is niet meer nodig
       setUIState('speaking', 'Dank u wel');
-      await spreek(bedankje.tekst);
+      await spreek(normaliseerBedankje(bedankje.tekst), { pitch: 1.02, rate: 0.96 });
       if (sid !== sessieId) return;
       isSubmitting = false;
       await rondGesprekAf();

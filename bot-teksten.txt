@@ -27,19 +27,24 @@ Dag! Bedankt voor je bezoek aan ons museum. Mogen we je een paar korte vragen st
 Hallo en bedankt voor je bezoek! Wil je een paar vragen over ons museum beantwoorden? Dat helpt ons enorm.
 
 [BEDANK_TEKSTEN]
-# Korte bedankjes die na elk beantwoord vraagstuk worden uitgesproken.
-Dank je wel voor je antwoord.
-Bedankt, fijn dat je dit deelt.
-Dank je, dat helpt ons verder.
-Ok, bedankt
-Dank je wel
+# Korte bedankjes die na elk beantwoord vraagstuk worden uitgesproken:
+Dank je wel voor je antwoord!
+Bedankt, fijn dat je dit deelt!
+Dank je, dat helpt ons verder!
+Oké, bedankt!
+Dank je wel!
 
 [STOP_BEDANKJE]
 # Vaste tekst wanneer de bezoeker op de rode STOP-knop drukt.
 Geen probleem, Hartelijk dank voor je tijd en nog een fijne dag!
 
 [VOORKEURSSTEMMEN]
-# Voorkeur voor voorleesstemmen (Nederlands-Nederlands, vrouwelijk). Fenna en Maartje (Edge Natural nl-NL), Fleur (Windows nl-NL), Claire (Apple nl-NL), Google Nederlands.
+# Voorkeur voor voorleesstemmen (Nederlands-Nederlands, vrouwelijk):
+Fenna
+Maartje
+Fleur
+Claire
+Google Nederlands
 
 [VRAGEN]
 # Stel hier de interviewvragen op, pas de volgorde aan en kies per vraag het type (standaard, algemeen of optioneel op keyword) en de antwoordopties bij multiple choice.
@@ -48,5 +53,5 @@ MC: "Ja; Nee" Is dit uw eerste bezoek aan ons?
 MC: "Leuk; Niet Leuk" Hoe vond u het bezoek?
 Heeft u alles gevonden wat u zocht?
 General: Heeft u nog suggesties of opmerkingen voor ons?
-Optional: "key:horeca" Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt
-Optional: "key:Expositie" Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie
+Optional: "key:horeca" Ik hoorde iets over horeca, mag ik je vragen of je van de horeca gebruik gemaakt hebt?
+Optional: "key:Expositie" Ik hoorde dat je iets zei over de expositie, heb je zelf nog een leuk idee over een expositie?
