@@ -461,7 +461,14 @@
     let sessieId = 0; // Verandert bij reset, zodat oude async acties stoppen
     let interviewActief = false; // True zolang de bezoeker het interview met de stopknop kan beëindigen
     let STOP_BEDANKJE = 'Geen probleem, we stoppen met het interview. Hartelijk dank voor je tijd en nog een fijne dag!';
-    const VOORKEURSSTEMMEN = ['Fenna', 'Colette', 'Microsoft Frank', 'Google Nederlands']; // Fenna en Colette zijn online Edge-stemmen; zonder internet valt de zuil terug op de lokale stem Frank
+    let VOORKEURSSTEMMEN = [
+      'Fenna',             // Microsoft Edge Online Natural (Nederlands-Nederlands, vrouw)
+      'Maartje',           // Microsoft Edge Online Natural (Nederlands-Nederlands, vrouw)
+      'Fleur',             // Microsoft Windows Desktop/SAPI (Nederlands-Nederlands, vrouw)
+      'Claire',            // Apple iOS/macOS/Safari (Nederlands-Nederlands, vrouw)
+      'Google Nederlands', // Google Chrome/Android (Nederlands-Nederlands, vrouw)
+      'Microsoft Frank'    // Lokale Windows fallback (Nederlands-Nederlands, man)
+    ];
     const SAMENVATTING_WEERGAVE_MS = 6000;
     let INTRO_TEKSTEN = [
       'Hallo, wat leuk dat je ons museum hebt bezocht! Zou je misschien een paar vragen over ons museum willen beantwoorden?',
@@ -1009,7 +1016,65 @@
     }
 
     // Chrome en Edge laden stemmen asynchroon; zonder wachten valt de eerste uiting terug op de standaardstem.
+    function isBelgischeStem(v) {
+      if (!v) return false;
+      const l = (v.lang || '').toLowerCase().replace('_', '-');
+      const n = (v.name || '').toLowerCase();
+      return l.includes('nl-be') || l.includes('nl_be') ||
+             n.includes('belgi') || n.includes('flemish') || n.includes('vlaams') ||
+             n.includes('colette') || n.includes('ellen') || n.includes('dena') || n.includes('arnaud');
+    }
+
+    function isNederlandseStemNL(v) {
+      if (!v) return false;
+      const l = (v.lang || '').toLowerCase().replace('_', '-');
+      const n = (v.name || '').toLowerCase();
+      if (isBelgischeStem(v)) return false;
+      return l === 'nl-nl' || l.startsWith('nl-nl') || l === 'nl' || n.includes('netherlands') || n.includes('nederland');
+    }
+
+    function isVrouwelijkeStem(v) {
+      if (!v) return false;
+      const n = (v.name || '').toLowerCase();
+      const vrouwelijkeNamen = ['fenna', 'maartje', 'fleur', 'claire', 'lotte', 'laura', 'sanne', 'female', 'vrouw'];
+      if (vrouwelijkeNamen.some(naam => n.includes(naam))) return true;
+      if (n.includes('google') && n.includes('nederlands')) return true;
+      const mannelijkeNamen = ['frank', 'jan', 'maarten', 'xander', 'ruben', 'bart', 'male', 'man'];
+      if (mannelijkeNamen.some(naam => n.includes(naam))) return false;
+      return true;
+    }
+
+    function kiesBesteNederlandseStem(stemmen) {
+      if (!stemmen || !stemmen.length) return null;
+
+      // 1. Zoek in VOORKEURSSTEMMEN (strikt Nederlands-Nederlands en NIET Belgisch)
+      for (const voorkeur of VOORKEURSSTEMMEN) {
+        const match = stemmen.find(v => isNederlandseStemNL(v) && v.name.toLowerCase().includes(voorkeur.toLowerCase()));
+        if (match) return match;
+      }
+
+      // 2. Zoek een vrouwelijke Nederlands-Nederlandse stem
+      const nlVrouw = stemmen.find(v => isNederlandseStemNL(v) && isVrouwelijkeStem(v));
+      if (nlVrouw) return nlVrouw;
+
+      // 3. Zoek een willekeurige Nederlands-Nederlandse stem
+      const nlNL = stemmen.find(v => isNederlandseStemNL(v));
+      if (nlNL) return nlNL;
+
+      // 4. Zoek een Nederlandse stem die in ieder geval NIET Belgisch is
+      const nlOverig = stemmen.find(v => (v.lang || '').toLowerCase().startsWith('nl') && !isBelgischeStem(v));
+      if (nlOverig) return nlOverig;
+
+      // 5. Noodvalkuil: alleen als er werkelijk geen enkele andere Nederlandse stem is
+      return stemmen.find(v => (v.lang || '').toLowerCase().startsWith('nl')) || null;
+    }
+
     function haalStemmen() {
+      const nuStemmen = ('speechSynthesis' in window) ? speechSynthesis.getVoices() : [];
+      if (nuStemmen && nuStemmen.length && kiesBesteNederlandseStem(nuStemmen)) {
+        stemmenCache = nuStemmen;
+        return Promise.resolve(nuStemmen);
+      }
       if (stemmenCache) return Promise.resolve(stemmenCache);
       if (stemmenPromise) return stemmenPromise;
       stemmenPromise = new Promise(resolve => {
@@ -1060,12 +1125,10 @@
         };
         const uiting = new SpeechSynthesisUtterance(tekst);
         uiting.lang = 'nl-NL';
-        const nlStemmen = stemmen.filter(v => v.lang.toLowerCase().startsWith('nl'));
-        const stem = VOORKEURSSTEMMEN.map(naam => nlStemmen.find(v => v.name.includes(naam))).find(Boolean)
-          || nlStemmen.find(v => v.localService) || nlStemmen[0];
+        const stem = kiesBesteNederlandseStem(stemmen);
         if (stem) {
           uiting.voice = stem;
-          uiting.lang = stem.lang;
+          uiting.lang = isBelgischeStem(stem) ? stem.lang : 'nl-NL';
         }
         uiting.rate = 0.95;
         uiting.onend = () => afronden(true);
@@ -1085,7 +1148,13 @@
       });
     }
 
-    if ('speechSynthesis' in window) speechSynthesis.getVoices();
+    if ('speechSynthesis' in window) {
+      speechSynthesis.addEventListener('voiceschanged', () => {
+        const v = speechSynthesis.getVoices();
+        if (v && v.length) stemmenCache = v;
+      });
+      speechSynthesis.getVoices();
+    }
 
     // Sommige geluidskaarten gaan in stand-by tussen twee uitingen; dan wordt het begin van de volgende tekst afgekapt.
     // Een onhoorbare stroom (circa -80 dB) houdt het apparaat wakker.
@@ -1137,6 +1206,8 @@
           INTRO_TEKSTEN: [],
           BEDANK_TEKSTEN: [],
           STOP_BEDANKJE: [],
+          VOORKEURSSTEMMEN: [],
+          STEMMEN: [],
           VRAGEN: []
         };
 
@@ -1161,6 +1232,8 @@
         if (secties.INTRO_TEKSTEN.length) INTRO_TEKSTEN = secties.INTRO_TEKSTEN;
         if (secties.BEDANK_TEKSTEN.length) BEDANK_TEKSTEN = secties.BEDANK_TEKSTEN;
         if (secties.STOP_BEDANKJE.length) STOP_BEDANKJE = secties.STOP_BEDANKJE.join(' ');
+        const nieuweStemmen = secties.VOORKEURSSTEMMEN.concat(secties.STEMMEN);
+        if (nieuweStemmen.length) VOORKEURSSTEMMEN = nieuweStemmen;
         if (secties.VRAGEN.length) geladenVraagRegels = secties.VRAGEN;
       } catch (err) {
         console.warn('Bot-teksten konden niet worden geladen, standaardteksten blijven actief:', err);
