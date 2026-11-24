@@ -27,7 +27,7 @@ Dag! Bedankt voor je bezoek aan ons museum. Mogen we je een paar korte vragen st
 Hallo en bedankt voor je bezoek! Wil je een paar vragen over ons museum beantwoorden? Dat helpt ons enorm.
 
 [BEDANK_TEKSTEN]
-# Korte bedankjes die na elk beantwoord vraagstuk worden uitgesproken:
+# Korte bedankjes die na elk beantwoord vraagstuk worden uitgesproken.
 Dank je wel voor je antwoord!
 Bedankt, fijn dat je dit deelt!
 Dank je, dat helpt ons verder!
@@ -39,12 +39,12 @@ Dank je wel!
 Geen probleem, Hartelijk dank voor je tijd en nog een fijne dag!
 
 [VOORKEURSSTEMMEN]
-# Voorkeur voor voorleesstemmen (Nederlands-Nederlands, vrouwelijk):
-Fenna
+# Voorkeur voor voorleesstemmen (Nederlands-Nederlands, vrouwelijk). Fenna en Maartje (Edge Natural nl-NL), Fleur (Windows nl-NL), Claire (Apple nl-NL), Google Nederlands.
+Google Nederlands
 Maartje
 Fleur
 Claire
-Google Nederlands
+Fenna
 
 [VRAGEN]
 # Stel hier de interviewvragen op, pas de volgorde aan en kies per vraag het type (standaard, algemeen of optioneel op keyword) en de antwoordopties bij multiple choice.
