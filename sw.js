@@ -1,4 +1,4 @@
-const CACHE_NAAM = "interview-zuil-v1";
+const CACHE_NAAM = "interview-zuil-v2";
 const SHELL_BESTANDEN = [
   "/",
   "/?mode=zuil",
@@ -6,6 +6,9 @@ const SHELL_BESTANDEN = [
   "/manifest.webmanifest",
   "/static/museum.ico",
   "/static/icon.svg",
+  "/static/img/logo-museum-van-de-20e-eeuw.svg",
+  "/static/fonts/dm-serif-display-latin-400-normal.woff2",
+  "/static/fonts/source-sans-3-latin-wght-normal.woff2",
 ];
 
 self.addEventListener("install", (event) => {

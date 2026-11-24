@@ -3,47 +3,347 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Informatiezuil Interview</title>
+  <title>Informatiezuil Interview — Museum van de 20e Eeuw</title>
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#1e293b">
+  <meta name="theme-color" content="#2e2a44">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Interview-zuil">
-  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/static/icon.svg">
+  <link rel="icon" href="/static/museum.ico">
+  <link rel="apple-touch-icon" href="/static/img/logo-museum-van-de-20e-eeuw.svg">
+  <link rel="preload" href="/static/fonts/dm-serif-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/source-sans-3-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    /* =====================================================================
+       Huisstijl overgenomen van museumhoorn.nl (Museum van de 20e Eeuw)
+       & Collectie Beheer Systeem:
+       papier-achtergrond, navy emaille borden met witte binnenrand, de
+       tegelkleuren oranje / geel / petrol, koppen in DM Serif Display en
+       tekst in Source Sans 3 (basisgrootte 1.125rem).
+       ===================================================================== */
+    @font-face {
+      font-family: "DM Serif Display";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("/static/fonts/dm-serif-display-latin-400-normal.woff2") format("woff2");
+    }
+
+    @font-face {
+      font-family: "Source Sans 3";
+      font-style: normal;
+      font-weight: 200 900;
+      font-display: swap;
+      src: url("/static/fonts/source-sans-3-latin-wght-normal.woff2") format("woff2-variations"),
+           url("/static/fonts/source-sans-3-latin-wght-normal.woff2") format("woff2");
+    }
+
+    :root {
+      --navy: #2e2a44;
+      --navy-2: #3b3656;
+      --oranje: #e8501e;
+      --oranje-d: #c4401a;
+      --oranje-t: #fce3d8;
+      --geel: #f8b333;
+      --geel-t: #fdefc9;
+      --petrol: #0184a1;
+      --petrol-d: #00738d;
+      --petrol-t: #d6eef3;
+      --papier: #fbf6ec;
+      --papier-2: #f4ecd8;
+      --kaart: #ffffff;
+      --rand: #e6ddc8;
+      --veld-rand: #cfc5ae;
+      --rij: #fdfaf3;
+      --tekst: #2e2a44;
+      --tekst-2: #4a4660;
+      --zacht: #5e5a72;
+      --zacht-licht: #e4e1ee;
+      --fout: #b3261e;
+      --kop: "DM Serif Display", Georgia, "Times New Roman", serif;
+      --body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --r: 10px;
+      --r-klein: 6px;
+      --wrap: 77.5rem;
+      --gutter: clamp(1rem, 3vw, 1.5rem);
+      --schaduw: 0 1px 2px rgba(46, 42, 68, 0.06), 0 8px 24px rgba(46, 42, 68, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
-      background: #0f172a; color: #f8fafc;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; min-height: 100dvh; padding: 2rem; text-align: center; user-select: none;
+      margin: 0;
+      background: var(--papier);
+      color: var(--tekst);
+      font-family: var(--body);
+      font-size: 1.125rem;
+      line-height: 1.6;
+      font-weight: 400;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      user-select: none;
     }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--kop);
+      font-weight: 400;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--geel);
+      outline-offset: 2px;
+      border-radius: 3px;
+    }
+
+    .wrap {
+      max-width: var(--wrap);
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.25rem;
+      font-size: 0.92rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--geel);
+      display: block;
+    }
+
+    /* ---------- Strook bovenaan ---------- */
+    .strook {
+      background: var(--navy);
+      color: #fff;
+      font-size: 0.95rem;
+    }
+    .strook-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.3rem 1.5rem;
+      padding-top: 0.55rem;
+      padding-bottom: 0.55rem;
+    }
+    .strook-feiten {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1.4rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .strook-feiten li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .strook-feiten li + li::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--geel);
+      margin-right: 0.2rem;
+    }
+    .strook-versie {
+      color: var(--zacht-licht);
+      font-weight: 600;
+    }
+    @media (max-width: 62rem) {
+      .strook-omschrijving { display: none !important; }
+    }
+
+    /* ---------- Kop met museumlogo ---------- */
+    .kop {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(251, 246, 236, 0.96);
+      backdrop-filter: saturate(1.2) blur(6px);
+      border-bottom: 1px solid var(--rand);
+    }
+    .kop-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 2rem;
+      min-height: 5.25rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--tekst);
+    }
+    .logo img {
+      width: 4.1rem;
+      height: 4.1rem;
+      flex: none;
+      display: block;
+    }
+    .logo-tekst {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+      text-align: left;
+    }
+    .logo-naam {
+      font-family: var(--kop);
+      font-size: 1.35rem;
+      white-space: nowrap;
+      color: var(--tekst);
+    }
+    .logo-plaats {
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--zacht);
+      margin-top: 0.25rem;
+      font-weight: 600;
+    }
+
+    /* ---------- Hoofdcontainer (Shell) & Navy Emaille Paneel ---------- */
+    .shell {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      max-width: var(--wrap);
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem var(--gutter) 1.25rem;
+    }
+
+    main {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1 1 auto;
+    }
+
     .kiosk-card {
-      background: #1e293b; border-radius: 24px; padding: 2rem 2.5rem;
-      max-width: 800px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-      border: 1px solid #334155; position: relative;
+      background: var(--kaart);
+      border: 1px solid var(--rand);
+      border-radius: var(--r);
+      box-shadow: var(--schaduw);
+      max-width: 54rem;
+      width: 100%;
+      padding: 0 2.25rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
     }
+
+    /* Navy emaille bord met witte binnenrand */
+    .panel-head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 -2.25rem 1.75rem;
+      padding: 1.35rem 2.25rem;
+      background: var(--navy);
+      color: #fff;
+      text-align: left;
+    }
+    .panel-head::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.92);
+      border-radius: 5px;
+      pointer-events: none;
+    }
+    .panel-head > * {
+      position: relative;
+      z-index: 3;
+    }
+    .panel-head h2 {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ---------- Visueel element bovenaan ---------- */
     .status-orb {
-      width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 1rem;
-      background: #475569; transition: all 0.3s ease;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      margin: 0 auto 1.1rem;
+      background: var(--papier-2);
+      border: 4px solid var(--rand);
+      box-shadow: var(--schaduw);
+      transition: all 0.3s ease;
     }
-    .status-orb.speaking { background: #3b82f6; box-shadow: 0 0 35px #3b82f6; animation: pulse 1.2s infinite; }
-    .status-orb.listening { background: #10b981; box-shadow: 0 0 35px #10b981; animation: pulse 1s infinite; }
-    .status-orb.thinking { background: #f59e0b; box-shadow: 0 0 35px #f59e0b; animation: pulse 0.8s infinite; }
+    .status-orb.speaking {
+      background: var(--petrol);
+      border-color: var(--petrol-t);
+      box-shadow: 0 0 32px rgba(1, 132, 161, 0.45);
+      animation: pulse 1.2s infinite;
+    }
+    .status-orb.listening {
+      background: var(--oranje);
+      border-color: var(--oranje-t);
+      box-shadow: 0 0 32px rgba(232, 80, 30, 0.45);
+      animation: pulse 1s infinite;
+    }
+    .status-orb.thinking {
+      background: var(--geel);
+      border-color: var(--geel-t);
+      box-shadow: 0 0 32px rgba(248, 179, 51, 0.55);
+      animation: pulse 0.8s infinite;
+    }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
     .idle-icon {
-      display: block; width: 128px; height: 128px; object-fit: contain;
-      margin: 0 auto 1.5rem; transform-origin: center; will-change: transform, opacity;
+      display: block;
+      width: 124px;
+      height: 124px;
+      object-fit: contain;
+      margin: 0 auto 1.25rem;
+      transform-origin: center;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 6px 14px rgba(46, 42, 68, 0.14));
     }
     .idle-icon.is-rotating { animation: icon-rotate var(--idle-duration) ease-in-out both; }
     .idle-icon.is-pulsing { animation: icon-pulse var(--idle-duration) ease-in-out both; }
     .idle-icon.is-flashing { animation: icon-flash var(--idle-duration) ease-in-out both; }
     @keyframes icon-rotate { to { transform: rotate(360deg); } }
-    @keyframes icon-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+    @keyframes icon-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.24); } }
     @keyframes icon-flash {
       0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.2; }
+      25%, 75% { opacity: 0.25; }
     }
     @media (prefers-reduced-motion: reduce) {
       .idle-icon.is-rotating, .idle-icon.is-pulsing, .idle-icon.is-flashing { animation: none; }
@@ -55,18 +355,52 @@
     .kiosk-card:not([data-scherm="antwoord"]) .volume-meter,
     .kiosk-card:not([data-scherm="mc"]) .coin-container { display: none; }
 
-    .status-label { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-bottom: 0.6rem; }
-    .question-text { font-size: 1.8rem; font-weight: 600; line-height: 1.4; min-height: 70px; margin-bottom: 1rem; white-space: pre-line; }
-    .transcript-box {
-      font-size: 1.3rem; color: #38bdf8; min-height: 48px; margin-bottom: 1rem;
-      font-style: italic; background: #0f172a; padding: 0.7rem 1rem; border-radius: 12px;
-      border: 1px solid #1e293b;
+    .status-label {
+      display: inline-block;
+      padding: 0.2rem 0.95rem;
+      border-radius: 999px;
+      background: var(--geel-t);
+      color: #7a5300;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.9rem;
     }
-    .volume-meter { margin: 0 0 1rem; }
-    .analog-meter { display: block; width: min(260px, 70%); margin: 0 auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45)); }
-    .meter-label { font: 600 9px 'Segoe UI', system-ui, sans-serif; fill: #3b3320; text-anchor: middle; }
-    .meter-vu { font: 700 16px 'Segoe UI', system-ui, sans-serif; fill: #3b3320; text-anchor: middle; letter-spacing: 2px; }
-    .volume-meter-status { color: #94a3b8; font-size: 0.9rem; margin-top: 0.4rem; }
+
+    .question-text {
+      font-family: var(--kop);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 400;
+      color: var(--tekst);
+      line-height: 1.3;
+      min-height: 76px;
+      margin-bottom: 1.25rem;
+      max-width: 44rem;
+      white-space: pre-line;
+      text-wrap: balance;
+    }
+
+    .transcript-box {
+      font-size: 1.25rem;
+      color: var(--petrol-d);
+      font-weight: 600;
+      min-height: 54px;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+      background: var(--rij);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--r);
+      border: 2px solid var(--petrol);
+      width: 100%;
+      max-width: 42rem;
+    }
+
+    .volume-meter { margin: 0 0 1rem; width: 100%; }
+    .analog-meter { display: block; width: min(260px, 70%); margin: 0 auto; filter: drop-shadow(0 6px 14px rgba(46, 42, 68, 0.18)); }
+    .meter-label { font: 700 9px var(--body); fill: #3b3320; text-anchor: middle; }
+    .meter-vu { font: 700 16px var(--kop); fill: #3b3320; text-anchor: middle; letter-spacing: 2px; }
+    .volume-meter-status { color: var(--zacht); font-size: 0.95rem; margin-top: 0.4rem; font-weight: 600; }
     .volume-meter-status:empty { display: none; }
 
     /* Ouderwets Dubbeltje (10 cent) voor Multiple Choice vragen */
@@ -111,7 +445,7 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       border-radius: 50%;
-      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+      filter: drop-shadow(0 6px 12px rgba(46, 42, 68, 0.3));
     }
     .coin-face.munt {
       transform: rotateX(180deg);
@@ -119,7 +453,7 @@
     .coin-shadow {
       width: 68px;
       height: 12px;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 75%);
+      background: radial-gradient(ellipse at center, rgba(46, 42, 68, 0.38) 0%, rgba(46, 42, 68, 0) 75%);
       border-radius: 50%;
       margin-top: 6px;
     }
@@ -135,40 +469,91 @@
       100% { transform: scale(1); opacity: 0.85; }
     }
     .coin-result-label {
-      color: #cbd5e1;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-top: 0.2rem;
-      min-height: 1.3rem;
+      color: var(--tekst-2);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+      min-height: 1.4rem;
     }
 
-    /* Multiple choice knoppen */
+    /* ---------- Knoppen (Collectie Beheer Systeem / museumhoorn.nl stijl) ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 3.2rem;
+      padding: 0.85rem 2rem;
+      border-radius: var(--r-klein);
+      border: 2px solid transparent;
+      background: var(--oranje-d);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.2rem;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+      margin: 0.35rem;
+    }
+    .btn:hover:not(:disabled) {
+      background: #a9360f;
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+    .btn.secondary {
+      background: transparent;
+      color: var(--tekst);
+      border-color: var(--tekst);
+      padding: 0.7rem 1.5rem;
+      font-size: 1.05rem;
+      min-height: 2.9rem;
+    }
+    .btn.secondary:hover:not(:disabled) {
+      background: var(--tekst);
+      color: var(--papier);
+    }
+    .btn.listen-btn {
+      background: var(--petrol-d);
+      color: #fff;
+    }
+    .btn.listen-btn:hover:not(:disabled) {
+      background: #015e73;
+    }
+    .btn.listen-btn.active {
+      background: var(--oranje-d);
+    }
+
+    /* Multiple choice knoppen in de museum-tegelkleuren */
     .mc-options {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.8rem;
-      margin-top: 0.5rem;
+      gap: 0.85rem;
+      margin-top: 0.4rem;
     }
     .btn.mc-btn {
-      background: #2563eb;
-      border: 2px solid #60a5fa;
-      min-width: 190px;
-      margin: 0.2rem;
+      background: var(--petrol-d);
+      border: 2px solid var(--petrol-d);
+      color: #fff;
+      min-width: 195px;
+      margin: 0.15rem;
+      box-shadow: var(--schaduw);
+    }
+    .btn.mc-btn:nth-child(2n) {
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+    .btn.mc-btn:nth-child(3n) {
+      background: var(--oranje-d);
+      border-color: var(--oranje-d);
     }
     .btn.mc-btn:hover {
-      background: #1d4ed8;
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(46, 42, 68, 0.18);
     }
-
-    .btn {
-      background: #E7501E; color: white; border: none; padding: 1.1rem 2.4rem;
-      font-size: 1.3rem; font-weight: 600; border-radius: 999px; cursor: pointer;
-      transition: background 0.2s, transform 0.1s; margin: 0.4rem;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn.secondary { background: #475569; padding: 0.7rem 1.5rem; font-size: 1rem; }
-    .btn.listen-btn { background: #059669; }
-    .btn.listen-btn.active { background: #dc2626; }
 
     /* ==========================================
        STOPKNOP in 20e-eeuwse uitvoering: rode bakeliet drukknop in een verchroomde ring
@@ -178,22 +563,19 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 0.35rem;
-      position: absolute;
-      top: 1.1rem;
-      right: 1.1rem;
-      z-index: 5;
+      gap: 0.3rem;
+      flex: none;
     }
     .kiosk-card.interview-actief .stop-paneel { display: flex; }
     .stop-knop {
-      width: 78px;
-      height: 78px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       border: none;
       cursor: pointer;
-      padding: 7px;
+      padding: 6px;
       background: conic-gradient(from 210deg, #f8fafc, #94a3b8, #e2e8f0, #64748b, #f1f5f9, #94a3b8, #f8fafc);
-      box-shadow: 0 6px 0 #334155, 0 10px 18px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(255,255,255,0.35);
+      box-shadow: 0 5px 0 #1b1828, 0 8px 16px rgba(0,0,0,0.45), inset 0 0 0 2px rgba(255,255,255,0.35);
       transition: transform 0.08s ease, box-shadow 0.08s ease;
       -webkit-tap-highlight-color: transparent;
     }
@@ -209,70 +591,86 @@
       color: #fef2f2;
       font-family: Georgia, 'Times New Roman', serif;
       font-weight: 700;
-      font-size: 1.05rem;
-      letter-spacing: 2px;
+      font-size: 0.95rem;
+      letter-spacing: 1.5px;
       text-shadow: 0 1px 0 #450a0a, 0 -1px 0 rgba(255,255,255,0.2);
     }
     .stop-knop:hover .stop-knop-kap { filter: brightness(1.1); }
     .stop-knop:active, .stop-knop.ingedrukt {
-      transform: translateY(5px);
-      box-shadow: 0 1px 0 #334155, 0 3px 6px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.35);
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #1b1828, 0 3px 6px rgba(0,0,0,0.45), inset 0 0 0 2px rgba(255,255,255,0.35);
     }
-    .stop-knop:focus-visible { outline: 3px solid #fde68a; outline-offset: 4px; }
+    .stop-knop:focus-visible { outline: 3px solid var(--geel); outline-offset: 4px; }
     .stop-plaatje {
       background: linear-gradient(180deg, #fde68a, #d97706 55%, #92400e);
       color: #3b2a0a;
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 0.66rem;
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      padding: 0.18rem 0.55rem;
+      padding: 0.14rem 0.5rem;
       border-radius: 3px;
       border: 1px solid #78350f;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.5);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.5);
     }
 
     .sound-notice {
       display: none;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid #f59e0b;
-      color: #fde68a;
-      font-size: 0.95rem;
-      font-weight: 600;
-      padding: 0.65rem 1rem;
-      border-radius: 12px;
-      margin: 0 auto 1rem;
+      background: var(--geel-t);
+      border: 1px solid var(--geel);
+      color: #7a5300;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.7rem 1.1rem;
+      border-radius: var(--r-klein);
+      margin: 0 auto 1.15rem;
       width: 100%;
+      max-width: 36rem;
     }
     body[data-mode="mobiel"] .kiosk-card[data-scherm="idle"] .sound-notice {
       display: block;
     }
 
+    /* ---------- Footer ---------- */
+    .footer {
+      margin-top: 1.25rem;
+      padding: 10px 0 4px;
+      text-align: center;
+      color: var(--zacht);
+      font-size: 0.95rem;
+    }
+
     /* ==========================================
        MOBIELE TELEFOON MODUS (automatisch bij mobiel scherm)
        ========================================== */
-    body[data-mode="mobiel"] {
-      padding: 0;
-      background: #1e293b;
+    body[data-mode="mobiel"] .kop-inner {
+      min-height: 4.35rem;
+    }
+    body[data-mode="mobiel"] .logo img {
+      width: 3.35rem;
+      height: 3.35rem;
+    }
+    body[data-mode="mobiel"] .logo-naam {
+      font-size: 1.15rem;
+    }
+    body[data-mode="mobiel"] .shell {
+      padding: 0.85rem 0.85rem 1rem;
     }
     body[data-mode="mobiel"] .kiosk-card {
-      max-width: 100%;
-      width: 100%;
-      min-height: 100dvh;
-      border-radius: 0;
-      border: none;
-      box-shadow: none;
-      padding: 1.5rem 1.25rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      padding: 0 1.25rem 1.5rem;
+    }
+    body[data-mode="mobiel"] .panel-head {
+      margin: 0 -1.25rem 1.25rem;
+      padding: 1.1rem 1.35rem;
+    }
+    body[data-mode="mobiel"] .panel-head h2 {
+      font-size: 1.35rem;
     }
     body[data-mode="mobiel"] .idle-icon {
       width: 96px;
       height: 96px;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
     }
     body[data-mode="mobiel"] .status-orb {
       width: 72px;
@@ -281,12 +679,11 @@
     }
     body[data-mode="mobiel"] .status-label {
       font-size: 0.85rem;
-      letter-spacing: 1.5px;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
     }
     body[data-mode="mobiel"] .question-text {
-      font-size: 1.25rem;
-      line-height: 1.4;
+      font-size: 1.35rem;
+      line-height: 1.35;
       min-height: 3.5rem;
       margin-bottom: 1rem;
       width: 100%;
@@ -306,7 +703,7 @@
     }
     body[data-mode="mobiel"] .coin-stage {
       width: 104px;
-      height: 120px;
+      height: 135px;
     }
     body[data-mode="mobiel"] .dubbeltje {
       width: 92px;
@@ -325,127 +722,164 @@
     body[data-mode="mobiel"] .btn {
       width: 100%;
       max-width: 310px;
-      padding: 0.95rem 1.4rem;
+      padding: 0.85rem 1.4rem;
       font-size: 1.1rem;
-      margin: 0.35rem auto;
-      display: block;
+      margin: 0.3rem auto;
+      display: inline-flex;
     }
     body[data-mode="mobiel"] .btn.secondary {
       font-size: 0.95rem;
-      padding: 0.75rem 1.2rem;
+      padding: 0.7rem 1.2rem;
     }
-    body[data-mode="mobiel"] .stop-paneel { top: 0.8rem; right: 0.8rem; }
-    body[data-mode="mobiel"] .stop-knop { width: 62px; height: 62px; padding: 5px; }
-    body[data-mode="mobiel"] .stop-knop-kap { font-size: 0.85rem; letter-spacing: 1.5px; }
-    body[data-mode="mobiel"] .stop-plaatje { font-size: 0.58rem; }
-    /* Op mobiel ruimte bovenaan vrijhouden zodat de stopknop niet over de vraag valt */
-    body[data-mode="mobiel"] .kiosk-card.interview-actief { padding-top: 6.5rem; }
+    body[data-mode="mobiel"] .stop-knop { width: 56px; height: 56px; padding: 5px; }
+    body[data-mode="mobiel"] .stop-knop-kap { font-size: 0.8rem; letter-spacing: 1.2px; }
+    body[data-mode="mobiel"] .stop-plaatje { font-size: 0.55rem; }
   </style>
 </head>
 <body data-mode="zuil">
 
-  <div class="kiosk-card" data-scherm="idle">
-    <!-- Stopknop: bezoeker kan het interview altijd beëindigen -->
-    <div id="stopPaneel" class="stop-paneel">
-      <button id="stopBtn" class="stop-knop" type="button" onclick="stopInterview()" aria-label="Interview stoppen" title="Interview stoppen">
-        <span class="stop-knop-kap">STOP</span>
-      </button>
-      <span class="stop-plaatje">Interview</span>
+  <div class="strook">
+    <div class="wrap strook-inner">
+      <ul class="strook-feiten">
+        <li id="strookDatum">Vandaag</li>
+        <li id="strookTijd">Tijd</li>
+        <li class="strook-omschrijving">Interactieve informatiezuil voor bezoekersinterviews</li>
+      </ul>
+      <span class="strook-versie" id="strookModus">Informatiezuil</span>
     </div>
-    <img id="idleIcon" class="idle-icon" src="/static/museum.ico" alt="" aria-hidden="true">
-    <div id="volumeMeter" class="volume-meter">
-      <svg id="analogMeter" class="analog-meter" viewBox="0 0 200 120" role="meter" aria-label="Microfoonvolume" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
-        <rect x="2" y="2" width="196" height="116" rx="10" fill="#f3e9c6" stroke="#6b5b2e" stroke-width="3"/>
-        <g id="meterScale"></g>
-        <text x="100" y="86" class="meter-vu">VU</text>
-        <g id="meterNeedle">
-          <line x1="100" y1="108" x2="100" y2="32" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
-        </g>
-        <circle cx="100" cy="108" r="7" fill="#3b3320"/>
-      </svg>
-      <div id="volumeMeterStatus" class="volume-meter-status"></div>
-    </div>
+  </div>
 
-    <!-- Ouderwets Nederlands dubbeltje (10 cent) voor Multiple Choice vragen -->
-    <div id="coinContainer" class="coin-container" onclick="gooiDubbeltje()" title="Tik om het dubbeltje nog eens op te gooien">
-      <div class="coin-stage">
-        <div id="dubbeltje" class="dubbeltje">
-          <!-- KOP: Koningin der Nederlanden -->
-          <svg class="coin-face kop" viewBox="0 0 120 120" aria-hidden="true">
-            <defs>
-              <radialGradient id="zilverKop" cx="35%" cy="30%" r="70%">
-                <stop offset="0%" stop-color="#f8fafc"/>
-                <stop offset="55%" stop-color="#cbd5e1"/>
-                <stop offset="100%" stop-color="#64748b"/>
-              </radialGradient>
-              <path id="kopTekstBoven" d="M 18,60 A 42,42 0 1,1 102,60"/>
-              <path id="kopTekstOnder" d="M 102,60 A 42,42 0 1,1 18,60"/>
-            </defs>
-            <circle cx="60" cy="60" r="57" fill="url(#zilverKop)" stroke="#475569" stroke-width="3"/>
-            <circle cx="60" cy="60" r="53" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2.5 2.5"/>
-            <circle cx="60" cy="60" r="36" fill="none" stroke="#64748b" stroke-width="1"/>
-            <!-- Klassiek profiel met kroontje -->
-            <path d="M 48,38 L 53,32 L 58,36 L 63,31 L 68,38 Z" fill="#475569"/>
-            <path d="M 46,42 C 46,35 68,35 72,45 C 75,50 77,53 75,56 C 77,58 76,61 73,62 C 74,65 72,68 68,69 C 65,70 63,74 65,80 L 45,80 C 47,72 45,65 43,58 C 42,52 44,46 46,42 Z" fill="#475569" stroke="#e2e8f0" stroke-width="1"/>
-            <text font-size="7.2" font-weight="700" fill="#334155" letter-spacing="1.1">
-              <textPath href="#kopTekstBoven" startOffset="50%" text-anchor="middle">JULIANA KONINGIN</textPath>
-            </text>
-            <text font-size="6.8" font-weight="700" fill="#334155" letter-spacing="1">
-              <textPath href="#kopTekstOnder" startOffset="50%" text-anchor="middle">DER NEDERLANDEN</textPath>
-            </text>
-          </svg>
-          <!-- MUNT: 10 CENT -->
-          <svg class="coin-face munt" viewBox="0 0 120 120" aria-hidden="true">
-            <defs>
-              <radialGradient id="zilverMunt" cx="35%" cy="30%" r="70%">
-                <stop offset="0%" stop-color="#f8fafc"/>
-                <stop offset="55%" stop-color="#cbd5e1"/>
-                <stop offset="100%" stop-color="#64748b"/>
-              </radialGradient>
-            </defs>
-            <circle cx="60" cy="60" r="57" fill="url(#zilverMunt)" stroke="#475569" stroke-width="3"/>
-            <circle cx="60" cy="60" r="53" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2.5 2.5"/>
-            <circle cx="60" cy="60" r="46" fill="none" stroke="#64748b" stroke-width="1"/>
-            <!-- Kroontje bovenaan -->
-            <path d="M 48,30 L 52,22 L 56,27 L 60,20 L 64,27 L 68,22 L 72,30 Z" fill="#475569"/>
-            <rect x="49" y="30" width="22" height="3" rx="1" fill="#334155"/>
-            <!-- 10 CENT -->
-            <text x="60" y="67" font-size="34" font-weight="800" fill="#1e293b" text-anchor="middle" font-family="Georgia, serif">10</text>
-            <text x="60" y="81" font-size="11" font-weight="700" fill="#334155" text-anchor="middle" letter-spacing="2.5">CENT</text>
-            <text x="60" y="96" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle" letter-spacing="1.5">1978</text>
-          </svg>
+  <header class="kop">
+    <div class="wrap kop-inner">
+      <a class="logo" href="/" onclick="resetKiosk(); return false;" aria-label="Museum van de 20e Eeuw - Bezoekersinterview">
+        <img src="/static/img/logo-museum-van-de-20e-eeuw.svg" width="1254" height="1254" alt="Museum van de 20e Eeuw">
+        <span class="logo-tekst">
+          <span class="logo-naam">Bezoekersinterview</span>
+          <span class="logo-plaats">Museum van de 20e Eeuw</span>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <div class="shell" id="main">
+    <main>
+      <article class="kiosk-card panel" data-scherm="idle">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow" id="panelEyebrow">Museum van de 20e Eeuw · Hoorn</span>
+            <h2 id="panelTitle">Vertel ons wat u van uw bezoek vond</h2>
+          </div>
+          <!-- Stopknop: bezoeker kan het interview altijd beëindigen -->
+          <div id="stopPaneel" class="stop-paneel">
+            <button id="stopBtn" class="stop-knop" type="button" onclick="stopInterview()" aria-label="Interview stoppen" title="Interview stoppen">
+              <span class="stop-knop-kap">STOP</span>
+            </button>
+            <span class="stop-plaatje">Interview</span>
+          </div>
         </div>
-        <div id="coinShadow" class="coin-shadow"></div>
-      </div>
-      <div id="coinResultLabel" class="coin-result-label"></div>
-    </div>
 
-    <div id="orb" class="status-orb"></div>
-    <div id="statusLabel" class="status-label">Klaar voor start</div>
-    
-    <div id="questionText" class="question-text">
-      Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.
-    </div>
+        <div class="panel-body">
+          <img id="idleIcon" class="idle-icon" src="/static/img/logo-museum-van-de-20e-eeuw.svg" alt="" aria-hidden="true">
+          <div id="volumeMeter" class="volume-meter">
+            <svg id="analogMeter" class="analog-meter" viewBox="0 0 200 120" role="meter" aria-label="Microfoonvolume" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+              <rect x="2" y="2" width="196" height="116" rx="10" fill="#f3e9c6" stroke="#6b5b2e" stroke-width="3"/>
+              <g id="meterScale"></g>
+              <text x="100" y="86" class="meter-vu">VU</text>
+              <g id="meterNeedle">
+                <line x1="100" y1="108" x2="100" y2="32" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
+              </g>
+              <circle cx="100" cy="108" r="7" fill="#3b3320"/>
+            </svg>
+            <div id="volumeMeterStatus" class="volume-meter-status"></div>
+          </div>
 
-    <div id="soundNotice" class="sound-notice">
-      🔊 Zet het geluid van uw telefoon aan voordat u start.
-    </div>
+          <!-- Ouderwets Nederlands dubbeltje (10 cent) voor Multiple Choice vragen -->
+          <div id="coinContainer" class="coin-container" onclick="gooiDubbeltje()" title="Tik om het dubbeltje nog eens op te gooien">
+            <div class="coin-stage">
+              <div id="dubbeltje" class="dubbeltje">
+                <!-- KOP: Koningin der Nederlanden -->
+                <svg class="coin-face kop" viewBox="0 0 120 120" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="zilverKop" cx="35%" cy="30%" r="70%">
+                      <stop offset="0%" stop-color="#f8fafc"/>
+                      <stop offset="55%" stop-color="#cbd5e1"/>
+                      <stop offset="100%" stop-color="#64748b"/>
+                    </radialGradient>
+                    <path id="kopTekstBoven" d="M 18,60 A 42,42 0 1,1 102,60"/>
+                    <path id="kopTekstOnder" d="M 102,60 A 42,42 0 1,1 18,60"/>
+                  </defs>
+                  <circle cx="60" cy="60" r="57" fill="url(#zilverKop)" stroke="#475569" stroke-width="3"/>
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2.5 2.5"/>
+                  <circle cx="60" cy="60" r="36" fill="none" stroke="#64748b" stroke-width="1"/>
+                  <!-- Klassiek profiel met kroontje -->
+                  <path d="M 48,38 L 53,32 L 58,36 L 63,31 L 68,38 Z" fill="#475569"/>
+                  <path d="M 46,42 C 46,35 68,35 72,45 C 75,50 77,53 75,56 C 77,58 76,61 73,62 C 74,65 72,68 68,69 C 65,70 63,74 65,80 L 45,80 C 47,72 45,65 43,58 C 42,52 44,46 46,42 Z" fill="#475569" stroke="#e2e8f0" stroke-width="1"/>
+                  <text font-size="7.2" font-weight="700" fill="#334155" letter-spacing="1.1">
+                    <textPath href="#kopTekstBoven" startOffset="50%" text-anchor="middle">JULIANA KONINGIN</textPath>
+                  </text>
+                  <text font-size="6.8" font-weight="700" fill="#334155" letter-spacing="1">
+                    <textPath href="#kopTekstOnder" startOffset="50%" text-anchor="middle">DER NEDERLANDEN</textPath>
+                  </text>
+                </svg>
+                <!-- MUNT: 10 CENT -->
+                <svg class="coin-face munt" viewBox="0 0 120 120" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="zilverMunt" cx="35%" cy="30%" r="70%">
+                      <stop offset="0%" stop-color="#f8fafc"/>
+                      <stop offset="55%" stop-color="#cbd5e1"/>
+                      <stop offset="100%" stop-color="#64748b"/>
+                    </radialGradient>
+                  </defs>
+                  <circle cx="60" cy="60" r="57" fill="url(#zilverMunt)" stroke="#475569" stroke-width="3"/>
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2.5 2.5"/>
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#64748b" stroke-width="1"/>
+                  <!-- Kroontje bovenaan -->
+                  <path d="M 48,30 L 52,22 L 56,27 L 60,20 L 64,27 L 68,22 L 72,30 Z" fill="#475569"/>
+                  <rect x="49" y="30" width="22" height="3" rx="1" fill="#334155"/>
+                  <!-- 10 CENT -->
+                  <text x="60" y="67" font-size="34" font-weight="800" fill="#1e293b" text-anchor="middle" font-family="Georgia, serif">10</text>
+                  <text x="60" y="81" font-size="11" font-weight="700" fill="#334155" text-anchor="middle" letter-spacing="2.5">CENT</text>
+                  <text x="60" y="96" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle" letter-spacing="1.5">1978</text>
+                </svg>
+              </div>
+              <div id="coinShadow" class="coin-shadow"></div>
+            </div>
+            <div id="coinResultLabel" class="coin-result-label"></div>
+          </div>
 
-    <div id="transcriptBox" class="transcript-box" style="display: none;">
-      Uw antwoord verschijnt hier...
-    </div>
+          <div id="orb" class="status-orb"></div>
+          <div id="statusLabel" class="status-label">Klaar voor start</div>
+          
+          <div id="questionText" class="question-text">
+            Welkom! Druk op de knop hieronder om het korte spraakinterview te starten.
+          </div>
 
-    <div id="controls">
-      <button id="startBtn" class="btn" onclick="startInterview()">Start Gesprek</button>
-      
-      <div id="answerControls" style="display: none;">
-        <button id="micBtn" class="btn listen-btn" onclick="toggleListening()">🎤 Spreek antwoord in</button>
-      </div>
+          <div id="soundNotice" class="sound-notice">
+            🔊 Zet het geluid van uw telefoon aan voordat u start.
+          </div>
 
-      <div id="mcControls" class="mc-options" style="display: none;"></div>
+          <div id="transcriptBox" class="transcript-box" style="display: none;">
+            Uw antwoord verschijnt hier...
+          </div>
 
-      <button id="resetBtn" class="btn secondary" style="display: none;" onclick="resetKiosk()">Nieuwe Bezoeker</button>
-    </div>
+          <div id="controls">
+            <button id="startBtn" class="btn" onclick="startInterview()">Start Gesprek</button>
+            
+            <div id="answerControls" style="display: none;">
+              <button id="micBtn" class="btn listen-btn" onclick="toggleListening()">🎤 Spreek antwoord in</button>
+            </div>
+
+            <div id="mcControls" class="mc-options" style="display: none;"></div>
+
+            <button id="resetBtn" class="btn secondary" style="display: none;" onclick="resetKiosk()">Nieuwe Bezoeker</button>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <span>(c) copyright Museum van de 20ste eeuw &middot; Interactieve Informatiezuil</span>
+    </footer>
   </div>
 
   <script>
@@ -1572,10 +2006,28 @@
       return (isMobielToestel || isKleinScherm) ? 'mobiel' : 'zuil';
     }
 
+    function werkStrookKlokBij() {
+      const nu = new Date();
+      const datumEl = document.getElementById('strookDatum');
+      const tijdEl = document.getElementById('strookTijd');
+      if (datumEl) {
+        datumEl.innerText = 'Vandaag ' + nu.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+      if (tijdEl) {
+        tijdEl.innerText = 'Tijd ' + nu.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+    werkStrookKlokBij();
+    setInterval(werkStrookKlokBij, 15000);
+
     function pasModusToe() {
       appMode = detecteerModus();
       document.body.dataset.mode = appMode;
       document.getElementById('resetBtn').innerText = appMode === 'mobiel' ? 'Opnieuw starten' : 'Nieuwe Bezoeker';
+      const strookModusEl = document.getElementById('strookModus');
+      if (strookModusEl) {
+        strookModusEl.innerText = appMode === 'mobiel' ? 'Mobiele weergave' : 'Informatiezuil';
+      }
       clearTimeout(idleToespraakTimer);
       if (appMode === 'mobiel') {
         if (isIdleMode) {
